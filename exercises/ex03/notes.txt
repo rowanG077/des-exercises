@@ -1,0 +1,91 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+ex03a:
+  First taskOne is ran to completion and then taskTwo is ran to completion.
+  This is because there is no yield point in task one.
+  Output:
+    I am taskOne and global = 1................
+    I am taskOne and global = 2................
+    I am taskOne and global = 3................
+    I am taskOne and global = 4................
+    I am taskOne and global = 5................
+    I am taskOne and global = 6................
+    I am taskOne and global = 7................
+    I am taskOne and global = 8................
+    I am taskOne and global = 9................
+    I am taskOne and global = 10................
+    I am taskTwo and global = 9----------------
+    I am taskTwo and global = 8----------------
+    I am taskTwo and global = 7----------------
+    I am taskTwo and global = 6----------------
+    I am taskTwo and global = 5----------------
+    I am taskTwo and global = 4----------------
+    I am taskTwo and global = 3----------------
+    I am taskTwo and global = 2----------------
+    I am taskTwo and global = 1----------------
+    I am taskTwo and global = 0----------------
+
+ex03b:
+  We use two semaphores. One semaphore, initialized with 1, is used to signal from taskOne to
+  taskTwo it has toggled to 0. And the other Semaphore, initialized to 0, is used to signal from
+  taskTwo to taskOne that is has toggled to 1. By initializing the semaphores this way the startup
+  sequence of the tasks do not matter. Since the semaphores are shared between the tasks it doesn't
+  how many taskOne or taskTwo tasks there are.
+
+  Output:
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 1 and global = 1
+    I am taskOne num 2 and global = 0
+    I am taskTwo num 2 and global = 1
+    I am taskOne num 1 and global = 0
+    I am taskTwo num 4 and global = 1
+    I am taskOne num 4 and global = 0
+    I am taskTwo num 0 and global = 1
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 3 and global = 1
+    I am taskOne num 2 and global = 0
+    I am taskTwo num 1 and global = 1
+    I am taskOne num 4 and global = 0
+    I am taskTwo num 2 and global = 1
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 4 and global = 1
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 0 and global = 1
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 3 and global = 1
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 1 and global = 1
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 2 and global = 1
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 4 and global = 1
+    I am taskOne num 0 and global = 0
+    I am taskTwo num 0 and global = 1
+    I am taskOne num 4 and global = 0
+    I am taskTwo num 3 and global = 1
+    ...
+
+ex03c:
+  Solution 1:
+    We create a semaphore with S_PRIO mode initialized with 0. When the tasks are
+    started they all wait on that semaphore. When all task have been created the semaphore
+    is signaled n times. This results in the scheduler choosing the highest priority task
+    first, then afterwards the one with the highest priority after it etc. This results
+    in the tasks running in priority order.
+
+  Solution 2:
+    We don't use semaphore p but instead use a single call to broadcast to wakeup all
+    tasks which are then executed in order of their priority.
+
+  Output:
+    start task 0
+    start task 1
+    start task 2
+    start task 3
+    start task 4
+    Task name: Task 4, number: 4
+    Task name: Task 3, number: 3
+    Task name: Task 2, number: 2
+    Task name: Task 1, number: 1
+    Task name: Task 0, number: 0

@@ -1,0 +1,87 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+ex02a:
+  The output shows each task has been started and they are executed in order.
+  Output:
+    start task 0
+    Task name: Task 0start task 1
+    Task name: Task 1start task 2
+    Task name: Task 2start task 3
+    Task name: Task 3start task 4
+    Task name: Task 4
+
+ex02b:
+  Same as a but now an argument was passed and used in the task.
+  Output:
+    start task 0
+    Task name: Task 0, number: 0
+    start task 1
+    Task name: Task 1, number: 1
+    start task 2
+    Task name: Task 2, number: 2
+    start task 3
+    Task name: Task 3, number: 3
+    start task 4
+    Task name: Task 4, number: 4
+
+ex02c:
+  We didn't have to modify our program from b. But we have added the sleep to see
+  our program is correct.
+  Output:
+    start task 0
+    start task 1
+    start task 2
+    start task 3
+    start task 4
+    End program by CTRL-C
+    Task name: Task 0, number: 0
+    Task name: Task 1, number: 1
+    Task name: Task 2, number: 2
+    Task name: Task 3, number: 3
+    Task name: Task 4, number: 4
+
+ex02d:
+  There are no yield points in the demo function which means the task is ran to completion before
+  the next one is started.
+  Output:
+    start task 0
+    Task name: Task 0, number: 0
+    start task 1
+    Task name: Task 1, number: 1
+    start task 2
+    Task name: Task 2, number: 2
+    start task 3
+    Task name: Task 3, number: 3
+    start task 4
+    Task name: Task 4, number: 4
+
+ex02e:
+  Each task is scheduled every period as configured.
+  Output:
+    start task 0
+    Running task name: Task 0, number: 0
+    start task 1
+    Running task name: Task 1, number: 1
+    start task 2
+    Running task name: Task 2, number: 2
+    Running task name: Task 0, number: 0
+    Running task name: Task 0, number: 0
+    Running task name: Task 1, number: 1
+    Running task name: Task 0, number: 0
+    Running task name: Task 2, number: 2
+    Running task name: Task 0, number: 0
+    Running task name: Task 1, number: 1
+    Running task name: Task 0, number: 0
+    Running task name: Task 0, number: 0
+    Running task name: Task 1, number: 1
+    Running task name: Task 2, number: 2
+    Running task name: Task 0, number: 0
+    Running task name: Task 0, number: 0
+    Running task name: Task 1, number: 1
+    Running task name: Task 0, number: 0
+    Running task name: Task 2, number: 2
+    Running task name: Task 0, number: 0
+    Running task name: Task 1, number: 1
+    Running task name: Task 0, number: 0
+    ...
