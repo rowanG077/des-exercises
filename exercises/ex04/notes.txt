@@ -1,0 +1,343 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+ex04a:
+  Description:
+
+  The program first creates and starts three tasks. The tasks will run, in
+  order, until the rt_sem_p call since there are no yield points before
+  rt_sem_p.
+
+  The tasks will block until the rt_sem_broadcast call later on. Before this
+  happens the priority of each task is changed. When the broadcast is done the
+  tasks get unblocked in order of priority. Each tasks runs until completion
+  since there are no yield points after the rt_sem_p call in the demo function.
+  This is why the output first shows, in order of task creation, the task id
+  followed by the running task in order of priority (i.e. third task first, then
+  the second task, and finally the first task).
+
+  Output:
+
+  start task  : 0
+  Task  : 0
+  start task  : 1
+  Task  : 1
+  start task  : 2
+  Task  : 2
+  wake up all tasks
+  Running Task  : 2 at ms : 10
+  Running Task  : 2 at ms : 20
+  Running Task  : 2 at ms : 30
+  Running Task  : 2 at ms : 40
+  Running Task  : 2 at ms : 50
+  Running Task  : 2 at ms : 60
+  Running Task  : 2 at ms : 70
+  Running Task  : 2 at ms : 80
+  Running Task  : 2 at ms : 90
+  Running Task  : 2 at ms : 100
+  Running Task  : 2 at ms : 110
+  Running Task  : 2 at ms : 120
+  Running Task  : 2 at ms : 130
+  Running Task  : 2 at ms : 140
+  Running Task  : 2 at ms : 150
+  Running Task  : 2 at ms : 160
+  Running Task  : 2 at ms : 170
+  Running Task  : 2 at ms : 180
+  Running Task  : 2 at ms : 190
+  Running Task  : 2 at ms : 200
+  End Task  : 2
+  Running Task  : 1 at ms : 10
+  Running Task  : 1 at ms : 20
+  Running Task  : 1 at ms : 30
+  Running Task  : 1 at ms : 40
+  Running Task  : 1 at ms : 50
+  Running Task  : 1 at ms : 60
+  Running Task  : 1 at ms : 70
+  Running Task  : 1 at ms : 80
+  Running Task  : 1 at ms : 90
+  Running Task  : 1 at ms : 100
+  Running Task  : 1 at ms : 110
+  Running Task  : 1 at ms : 120
+  Running Task  : 1 at ms : 130
+  Running Task  : 1 at ms : 140
+  Running Task  : 1 at ms : 150
+  Running Task  : 1 at ms : 160
+  Running Task  : 1 at ms : 170
+  Running Task  : 1 at ms : 180
+  Running Task  : 1 at ms : 190
+  Running Task  : 1 at ms : 200
+  End Task  : 1
+  Running Task  : 0 at ms : 10
+  Running Task  : 0 at ms : 20
+  Running Task  : 0 at ms : 30
+  Running Task  : 0 at ms : 40
+  Running Task  : 0 at ms : 50
+  Running Task  : 0 at ms : 60
+  Running Task  : 0 at ms : 70
+  Running Task  : 0 at ms : 80
+  Running Task  : 0 at ms : 90
+  Running Task  : 0 at ms : 100
+  Running Task  : 0 at ms : 110
+  Running Task  : 0 at ms : 120
+  Running Task  : 0 at ms : 130
+  Running Task  : 0 at ms : 140
+  Running Task  : 0 at ms : 150
+  Running Task  : 0 at ms : 160
+  Running Task  : 0 at ms : 170
+  Running Task  : 0 at ms : 180
+  Running Task  : 0 at ms : 190
+  Running Task  : 0 at ms : 200
+  End Task  : 0
+
+ex04b
+  Description:
+
+  The reasoning is mostly the same as ex04a. The only difference is that, when
+  the semaphore is signaled using the broadcast, the second and third task have
+  the same priority. Since the default scheduler is a preemptive priority-based
+  FIFO scheduler the tasks with the same priority are executed in the order that
+  they were added. This is why the output is almost the same as ex04a, except
+  that the second task now runs before the third task.
+
+  Output:
+
+  start task  : 0
+  Task  : 0
+  start task  : 1
+  Task  : 1
+  start task  : 2
+  Task  : 2
+  wake up all tasks
+  Running Task  : 1 at ms : 10
+  Running Task  : 1 at ms : 20
+  Running Task  : 1 at ms : 30
+  Running Task  : 1 at ms : 40
+  Running Task  : 1 at ms : 50
+  Running Task  : 1 at ms : 60
+  Running Task  : 1 at ms : 70
+  Running Task  : 1 at ms : 80
+  Running Task  : 1 at ms : 90
+  Running Task  : 1 at ms : 100
+  Running Task  : 1 at ms : 110
+  Running Task  : 1 at ms : 120
+  Running Task  : 1 at ms : 130
+  Running Task  : 1 at ms : 140
+  Running Task  : 1 at ms : 150
+  Running Task  : 1 at ms : 160
+  Running Task  : 1 at ms : 170
+  Running Task  : 1 at ms : 180
+  Running Task  : 1 at ms : 190
+  Running Task  : 1 at ms : 200
+  End Task  : 1
+  Running Task  : 2 at ms : 10
+  Running Task  : 2 at ms : 20
+  Running Task  : 2 at ms : 30
+  Running Task  : 2 at ms : 40
+  Running Task  : 2 at ms : 50
+  Running Task  : 2 at ms : 60
+  Running Task  : 2 at ms : 70
+  Running Task  : 2 at ms : 80
+  Running Task  : 2 at ms : 90
+  Running Task  : 2 at ms : 100
+  Running Task  : 2 at ms : 110
+  Running Task  : 2 at ms : 120
+  Running Task  : 2 at ms : 130
+  Running Task  : 2 at ms : 140
+  Running Task  : 2 at ms : 150
+  Running Task  : 2 at ms : 160
+  Running Task  : 2 at ms : 170
+  Running Task  : 2 at ms : 180
+  Running Task  : 2 at ms : 190
+  Running Task  : 2 at ms : 200
+  End Task  : 2
+  Running Task  : 0 at ms : 10
+  Running Task  : 0 at ms : 20
+  Running Task  : 0 at ms : 30
+  Running Task  : 0 at ms : 40
+  Running Task  : 0 at ms : 50
+  Running Task  : 0 at ms : 60
+  Running Task  : 0 at ms : 70
+  Running Task  : 0 at ms : 80
+  Running Task  : 0 at ms : 90
+  Running Task  : 0 at ms : 100
+  Running Task  : 0 at ms : 110
+  Running Task  : 0 at ms : 120
+  Running Task  : 0 at ms : 130
+  Running Task  : 0 at ms : 140
+  Running Task  : 0 at ms : 150
+  Running Task  : 0 at ms : 160
+  Running Task  : 0 at ms : 170
+  Running Task  : 0 at ms : 180
+  Running Task  : 0 at ms : 190
+  Running Task  : 0 at ms : 200
+  End Task  : 0
+
+ex04c
+  Description:
+
+  As described in ex04a, task 2 will run first. It will run until half its
+  execution time after which it will increase the priority of the other two
+  tasks. As a preemptive priority scheduler is used the kernel will switch to
+  the second task since it now has the highest priority. The second task will
+  then start executing until completion. The same thing happens to the first
+  task as it will then have the highest priority of the remaining two tasks.
+  Finally, the third task will execute the remainder of its execution time. The
+  output reflects this.
+
+  Output:
+
+  start task  : 0
+  Task  : 0
+  start task  : 1
+  Task  : 1
+  start task  : 2
+  Task  : 2
+  wake up all tasks
+  Running Task  : 2 at ms : 10
+  Running Task  : 2 at ms : 20
+  Running Task  : 2 at ms : 30
+  Running Task  : 2 at ms : 40
+  Running Task  : 2 at ms : 50
+  Running Task  : 2 at ms : 60
+  Running Task  : 2 at ms : 70
+  Running Task  : 2 at ms : 80
+  Running Task  : 2 at ms : 90
+  Running Task  : 2 at ms : 100
+  Running Task  : 1 at ms : 10
+  Running Task  : 1 at ms : 20
+  Running Task  : 1 at ms : 30
+  Running Task  : 1 at ms : 40
+  Running Task  : 1 at ms : 50
+  Running Task  : 1 at ms : 60
+  Running Task  : 1 at ms : 70
+  Running Task  : 1 at ms : 80
+  Running Task  : 1 at ms : 90
+  Running Task  : 1 at ms : 100
+  Running Task  : 1 at ms : 110
+  Running Task  : 1 at ms : 120
+  Running Task  : 1 at ms : 130
+  Running Task  : 1 at ms : 140
+  Running Task  : 1 at ms : 150
+  Running Task  : 1 at ms : 160
+  Running Task  : 1 at ms : 170
+  Running Task  : 1 at ms : 180
+  Running Task  : 1 at ms : 190
+  Running Task  : 1 at ms : 200
+  End Task  : 1
+  Running Task  : 0 at ms : 10
+  Running Task  : 0 at ms : 20
+  Running Task  : 0 at ms : 30
+  Running Task  : 0 at ms : 40
+  Running Task  : 0 at ms : 50
+  Running Task  : 0 at ms : 60
+  Running Task  : 0 at ms : 70
+  Running Task  : 0 at ms : 80
+  Running Task  : 0 at ms : 90
+  Running Task  : 0 at ms : 100
+  Running Task  : 0 at ms : 110
+  Running Task  : 0 at ms : 120
+  Running Task  : 0 at ms : 130
+  Running Task  : 0 at ms : 140
+  Running Task  : 0 at ms : 150
+  Running Task  : 0 at ms : 160
+  Running Task  : 0 at ms : 170
+  Running Task  : 0 at ms : 180
+  Running Task  : 0 at ms : 190
+  Running Task  : 0 at ms : 200
+  End Task  : 0
+  Running Task  : 2 at ms : 110
+  Running Task  : 2 at ms : 120
+  Running Task  : 2 at ms : 130
+  Running Task  : 2 at ms : 140
+  Running Task  : 2 at ms : 150
+  Running Task  : 2 at ms : 160
+  Running Task  : 2 at ms : 170
+  Running Task  : 2 at ms : 180
+  Running Task  : 2 at ms : 190
+  Running Task  : 2 at ms : 200
+  End Task  : 2
+
+ex04d.
+  Description:
+
+  Similar to the reasoning in ex04c, the third task executes half its time and
+  then changes its priority to 40. This causes the second task to have the
+  highest priority and the kernel will switch to that task. This task, too, will
+  execute half its time. After its priority is set to 39 it will switch to the
+  first task and it will execute in the same way. After this the third task once
+  again has the highest priority and it will execute the remainder of its time
+  followed by the second task and finally the first task. The output reflects
+  this.
+
+  Output:
+
+  start task  : 0
+  Task  : 0
+  start task  : 1
+  Task  : 1
+  start task  : 2
+  Task  : 2
+  wake up all tasks
+  Running Task  : 2 at ms : 10
+  Running Task  : 2 at ms : 20
+  Running Task  : 2 at ms : 30
+  Running Task  : 2 at ms : 40
+  Running Task  : 2 at ms : 50
+  Running Task  : 2 at ms : 60
+  Running Task  : 2 at ms : 70
+  Running Task  : 2 at ms : 80
+  Running Task  : 2 at ms : 90
+  Running Task  : 2 at ms : 100
+  Running Task  : 1 at ms : 10
+  Running Task  : 1 at ms : 20
+  Running Task  : 1 at ms : 30
+  Running Task  : 1 at ms : 40
+  Running Task  : 1 at ms : 50
+  Running Task  : 1 at ms : 60
+  Running Task  : 1 at ms : 70
+  Running Task  : 1 at ms : 80
+  Running Task  : 1 at ms : 90
+  Running Task  : 1 at ms : 100
+  Running Task  : 0 at ms : 10
+  Running Task  : 0 at ms : 20
+  Running Task  : 0 at ms : 30
+  Running Task  : 0 at ms : 40
+  Running Task  : 0 at ms : 50
+  Running Task  : 0 at ms : 60
+  Running Task  : 0 at ms : 70
+  Running Task  : 0 at ms : 80
+  Running Task  : 0 at ms : 90
+  Running Task  : 0 at ms : 100
+  Running Task  : 2 at ms : 110
+  Running Task  : 2 at ms : 120
+  Running Task  : 2 at ms : 130
+  Running Task  : 2 at ms : 140
+  Running Task  : 2 at ms : 150
+  Running Task  : 2 at ms : 160
+  Running Task  : 2 at ms : 170
+  Running Task  : 2 at ms : 180
+  Running Task  : 2 at ms : 190
+  Running Task  : 2 at ms : 200
+  End Task  : 2
+  Running Task  : 1 at ms : 110
+  Running Task  : 1 at ms : 120
+  Running Task  : 1 at ms : 130
+  Running Task  : 1 at ms : 140
+  Running Task  : 1 at ms : 150
+  Running Task  : 1 at ms : 160
+  Running Task  : 1 at ms : 170
+  Running Task  : 1 at ms : 180
+  Running Task  : 1 at ms : 190
+  Running Task  : 1 at ms : 200
+  End Task  : 1
+  Running Task  : 0 at ms : 110
+  Running Task  : 0 at ms : 120
+  Running Task  : 0 at ms : 130
+  Running Task  : 0 at ms : 140
+  Running Task  : 0 at ms : 150
+  Running Task  : 0 at ms : 160
+  Running Task  : 0 at ms : 170
+  Running Task  : 0 at ms : 180
+  Running Task  : 0 at ms : 190
+  Running Task  : 0 at ms : 200
+  End Task  : 0
