@@ -5,11 +5,6 @@
 #include <alchemy/timer.h>
 #include <rtdm/gpio.h>
 
-#define LEDBLINKPERIOD 5e8
-
-RT_TASK ledToggle;
-RT_TASK ledReadInterrupt;
-
 int open_led_gpio(void) {
     int value = 0;
     int fd = open("/dev/rtdm/pinctrl-bcm2835/gpio22",O_WRONLY);
@@ -33,16 +28,14 @@ void close_gpio(int fd) {
 }
 
 int open_btn_gpio(void) {
-    int value = 0;
+    int xeno_trigger = GPIO_TRIGGER_EDGE_FALLING | GPIO_TRIGGER_EDGE_RISING;
 
-    int xeno_trigger = GPIO_TRIGGER_EDGE_FALLING;
-
-    int fd = open("/dev/rtdm/pinctrl-bcm2835/gpio23",O_WRONLY);
+    int fd = open("/dev/rtdm/pinctrl-bcm2835/gpio23", O_RDONLY);
     if (fd == -1) {
         printf("Could not open BUTTON (gpio23) device file.\n");
         exit(1);
     }
-    if (ioctl(fd, GPIO_RTIOC_IRQEN, &value) == -1) {
+    if (ioctl(fd, GPIO_RTIOC_IRQEN, &xeno_trigger) == -1) {
         printf("Could not do GPIO_RTIOC_IRQEN on BUTTON (gpio23) file descriptor.\n");
         exit(1);
     }
@@ -50,16 +43,34 @@ int open_btn_gpio(void) {
 }
 
 int main(int argc, char *argv[]) {
+    RTIME debounce = 50e6;
+    RTIME lastBtnPress = 0;
+
     int led_state = 1;
+    int last_btn_state = 1;
+    int btn_state = 0;
+
     int led = open_led_gpio();
     int btn = open_btn_gpio();
-    int value = 0;
+
     int counter = 0;
 
     while (1) {
-        if (read(btn, &value, sizeof(value)) != sizeof(value)) {
+        if (read(btn, &btn_state, sizeof(btn_state)) != sizeof(btn_state)) {
             printf("Error while reading button interrupt.\n");
             exit(1);
+        }
+        RTIME now = rt_timer_read();
+
+        if (lastBtnPress + debounce > now || last_btn_state == btn_state) {
+            continue;
+        }
+
+        lastBtnPress = now;
+
+        last_btn_state = btn_state;
+        if (btn_state != 0) {
+            continue;
         }
 
         ++counter;
@@ -69,6 +80,7 @@ int main(int argc, char *argv[]) {
             printf("Error while writing to led.\n");
             exit(1);
         }
+
         led_state = led_state == 0 ? 1 : 0;
     }
 }

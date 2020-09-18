@@ -6,5 +6,38 @@ ex07c:
   pressed the pin is in a HIGH state and when pressed transitions to a LOW
   state. So we wire up the interrupt to only trigger on a falling edge.
   Each time the button is pressed the read function returns and the led
-  is toggled.
+  is toggled. We use a debounce algorithm to ensure bouncing of the button
+  contact does not impact the toggling of the LED. In addition we only toggle
+  the LED when going from not-pressed to pressed state.
+
   Output:
+    Interrupt recieved, counter: 1
+    Interrupt recieved, counter: 2
+    Interrupt recieved, counter: 3
+    Interrupt recieved, counter: 4
+    Interrupt recieved, counter: 5
+    Interrupt recieved, counter: 6
+    Interrupt recieved, counter: 7
+    Interrupt recieved, counter: 8
+    Interrupt recieved, counter: 9
+    Interrupt recieved, counter: 10
+    Interrupt recieved, counter: 11
+    Interrupt recieved, counter: 12
+    Interrupt recieved, counter: 13
+    Interrupt recieved, counter: 14
+    Interrupt recieved, counter: 15
+    Interrupt recieved, counter: 16
+    Interrupt recieved, counter: 17
+    Interrupt recieved, counter: 18
+    Interrupt recieved, counter: 19
+    Interrupt recieved, counter: 20
+    Interrupt recieved, counter: 21
+    Interrupt recieved, counter: 22
+    Interrupt recieved, counter: 23
+    Interrupt recieved, counter: 24
+    Interrupt recieved, counter: 25
+    Interrupt recieved, counter: 26
+    Interrupt recieved, counter: 27
+    Interrupt recieved, counter: 28
+    Interrupt recieved, counter: 29
+    Interrupt recieved, counter: 30

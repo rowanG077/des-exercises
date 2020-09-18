@@ -33,16 +33,14 @@ void close_gpio(int fd) {
 }
 
 int open_led_read_gpio(void) {
-    int value = 0;
-
     int xeno_trigger = GPIO_TRIGGER_EDGE_RISING;
 
-    int fd = open("/dev/rtdm/pinctrl-bcm2835/gpio24",O_WRONLY);
+    int fd = open("/dev/rtdm/pinctrl-bcm2835/gpio24", O_RDONLY);
     if (fd == -1) {
         printf("Could not open LED read (gpio24) device file.\n");
         exit(1);
     }
-    if (ioctl(fd, GPIO_RTIOC_IRQEN, &value) == -1) {
+    if (ioctl(fd, GPIO_RTIOC_IRQEN, &xeno_trigger) == -1) {
         printf("Could not do GPIO_RTIOC_IRQEN on BUTTON (gpio23) file descriptor.\n");
         exit(1);
     }
