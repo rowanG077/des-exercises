@@ -84,13 +84,16 @@ ex05a:
 ex05b:
   Description:
 
-  The tasks now behave in round-robin like manner. Curiously enough, sometimes
+  The tasks now behave in a round-robin like manner. Curiously enough, sometimes
   tasks print their value twice. This could be because the scheduler isn't
   precise enough (maybe only in the VM?) on the milliseconds level, which causes
   a task to sometimes run slightly longer than after their spin. We've tested
   with some larger values in which this doesn't occur. The tasks never run
   out-of-order, so this reinforces the above.
 
+  Note: After posting the above we tested the program on the raspberry pi as
+  well. On the raspberry it *does* give the expected solution, so the VM is
+  probably the root cause as mentioned above.
 
   Output:
 
@@ -174,6 +177,10 @@ ex05c:
   are executed in the order that they were added. With the round-robin strategy
   tasks with the same priority are rotated based on their timeslice. Since the
   fourth task has a higher priority it is run until completion.
+
+  Note: the same observation was made here for the round-robin tasks: the VM
+  isn't entirely accurate. Running the program on the raspberry pi does give the
+  expected result.
 
   Output:
 
