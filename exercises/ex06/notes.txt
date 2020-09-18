@@ -1,0 +1,85 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+ex06a:
+  Description:
+
+  In order to simulate the required situation we start the tasks inside the
+  lower priority tasks. This will cause the tasks to start as soon as the call
+  has been made. As nothing happens to prevent TODO
+
+  Output:
+
+  Low priority task locks semaphore
+  Medium task running
+  Medium task running
+  High priority task tries to lock semaphore
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  ..........................................Medium priority task ends
+  Low priority task unlocks semaphore
+  High priority task locks semaphore
+  High priority task unlocks semaphore
+  High priority task tries to lock semaphore
+  High priority task locks semaphore
+  High priority task unlocks semaphore
+  High priority task tries to lock semaphore
+  High priority task locks semaphore
+  High priority task unlocks semaphore
+  ..........................................High priority task ends
+  Low priority task locks semaphore
+  Low priority task unlocks semaphore
+  Low priority task locks semaphore
+  Low priority task unlocks semaphore
+
+
+ex06b:
+  Description:
+
+  By using a mutex we enforce priorty inheritance. As can be seen in the output,
+  after the high priority task first tries to obtain the lock, the low priority
+  inherits the priority. The low priority task then starts running until it
+  unlocks the semaphore after which its priority drops and the high priority
+  task can complete its task. Once this is finished the medium task will start
+  running until the end, followed by the low priority task.
+
+  Output:
+
+  Low priority task locks semaphore
+  Medium task running
+  Medium task running
+  High priority task tries to lock semaphore
+  Low priority task unlocks semaphore
+  High priority task locks semaphore
+  High priority task unlocks semaphore
+  High priority task tries to lock semaphore
+  High priority task locks semaphore
+  High priority task unlocks semaphore
+  High priority task tries to lock semaphore
+  High priority task locks semaphore
+  High priority task unlocks semaphore
+  ..........................................High priority task ends
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  Medium task running
+  ..........................................Medium priority task ends
+  Low priority task locks semaphore
+  Low priority task unlocks semaphore
+  Low priority task locks semaphore
+  Low priority task unlocks semaphore
+  ..........................................Low priority task ends
