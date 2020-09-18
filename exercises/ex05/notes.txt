@@ -1,0 +1,272 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+ex05a:
+  Description:
+
+  Since the standard FIFO scheduler is used, and the tasks have the same
+  priority, the tasks are executed in the order that they were added. The output
+  reflects this.
+
+  Output:
+
+  start task  : 0
+  Task  : 0
+  start task  : 1
+  Task  : 1
+  start task  : 2
+  Task  : 2
+  wake up all tasks
+  Running Task  : 0  at time : 10000000
+  Running Task  : 0  at time : 20000000
+  Running Task  : 0  at time : 30000000
+  Running Task  : 0  at time : 40000000
+  Running Task  : 0  at time : 50000000
+  Running Task  : 0  at time : 60000000
+  Running Task  : 0  at time : 70000000
+  Running Task  : 0  at time : 80000000
+  Running Task  : 0  at time : 90000000
+  Running Task  : 0  at time : 100000000
+  Running Task  : 0  at time : 110000000
+  Running Task  : 0  at time : 120000000
+  Running Task  : 0  at time : 130000000
+  Running Task  : 0  at time : 140000000
+  Running Task  : 0  at time : 150000000
+  Running Task  : 0  at time : 160000000
+  Running Task  : 0  at time : 170000000
+  Running Task  : 0  at time : 180000000
+  Running Task  : 0  at time : 190000000
+  Running Task  : 0  at time : 200000000
+  End Task  : 0
+  Running Task  : 1  at time : 10000000
+  Running Task  : 1  at time : 20000000
+  Running Task  : 1  at time : 30000000
+  Running Task  : 1  at time : 40000000
+  Running Task  : 1  at time : 50000000
+  Running Task  : 1  at time : 60000000
+  Running Task  : 1  at time : 70000000
+  Running Task  : 1  at time : 80000000
+  Running Task  : 1  at time : 90000000
+  Running Task  : 1  at time : 100000000
+  Running Task  : 1  at time : 110000000
+  Running Task  : 1  at time : 120000000
+  Running Task  : 1  at time : 130000000
+  Running Task  : 1  at time : 140000000
+  Running Task  : 1  at time : 150000000
+  Running Task  : 1  at time : 160000000
+  Running Task  : 1  at time : 170000000
+  Running Task  : 1  at time : 180000000
+  Running Task  : 1  at time : 190000000
+  Running Task  : 1  at time : 200000000
+  End Task  : 1
+  Running Task  : 2  at time : 10000000
+  Running Task  : 2  at time : 20000000
+  Running Task  : 2  at time : 30000000
+  Running Task  : 2  at time : 40000000
+  Running Task  : 2  at time : 50000000
+  Running Task  : 2  at time : 60000000
+  Running Task  : 2  at time : 70000000
+  Running Task  : 2  at time : 80000000
+  Running Task  : 2  at time : 90000000
+  Running Task  : 2  at time : 100000000
+  Running Task  : 2  at time : 110000000
+  Running Task  : 2  at time : 120000000
+  Running Task  : 2  at time : 130000000
+  Running Task  : 2  at time : 140000000
+  Running Task  : 2  at time : 150000000
+  Running Task  : 2  at time : 160000000
+  Running Task  : 2  at time : 170000000
+  Running Task  : 2  at time : 180000000
+  Running Task  : 2  at time : 190000000
+  Running Task  : 2  at time : 200000000
+  End Task  : 2
+
+ex05b:
+  Description:
+
+  The tasks now behave in round-robin like manner. Curiously enough, sometimes
+  tasks print their value twice. This could be because the scheduler isn't
+  precise enough (maybe only in the VM?) on the milliseconds level, which causes
+  a task to sometimes run slightly longer than after their spin. We've tested
+  with some larger values in which this doesn't occur. The tasks never run
+  out-of-order, so this reinforces the above.
+
+
+  Output:
+
+  start task  : 0
+  Task  : 0
+  start task  : 1
+  Task  : 1
+  start task  : 2
+  Task  : 2
+  wake up all tasks
+  Running Task  : 0  at time : 10000000
+  Running Task  : 1  at time : 10000000
+  Running Task  : 2  at time : 10000000
+  Running Task  : 0  at time : 20000000
+  Running Task  : 0  at time : 30000000
+  Running Task  : 1  at time : 20000000
+  Running Task  : 1  at time : 30000000
+  Running Task  : 2  at time : 20000000
+  Running Task  : 2  at time : 30000000
+  Running Task  : 0  at time : 40000000
+  Running Task  : 0  at time : 50000000
+  Running Task  : 1  at time : 40000000
+  Running Task  : 1  at time : 50000000
+  Running Task  : 2  at time : 40000000
+  Running Task  : 2  at time : 50000000
+  Running Task  : 0  at time : 60000000
+  Running Task  : 0  at time : 70000000
+  Running Task  : 1  at time : 60000000
+  Running Task  : 1  at time : 70000000
+  Running Task  : 2  at time : 60000000
+  Running Task  : 2  at time : 70000000
+  Running Task  : 0  at time : 80000000
+  Running Task  : 0  at time : 90000000
+  Running Task  : 0  at time : 100000000
+  Running Task  : 1  at time : 80000000
+  Running Task  : 1  at time : 90000000
+  Running Task  : 2  at time : 80000000
+  Running Task  : 2  at time : 90000000
+  Running Task  : 0  at time : 110000000
+  Running Task  : 0  at time : 120000000
+  Running Task  : 1  at time : 100000000
+  Running Task  : 1  at time : 110000000
+  Running Task  : 2  at time : 100000000
+  Running Task  : 2  at time : 110000000
+  Running Task  : 0  at time : 130000000
+  Running Task  : 0  at time : 140000000
+  Running Task  : 1  at time : 120000000
+  Running Task  : 1  at time : 130000000
+  Running Task  : 2  at time : 120000000
+  Running Task  : 2  at time : 130000000
+  Running Task  : 0  at time : 150000000
+  Running Task  : 0  at time : 160000000
+  Running Task  : 1  at time : 140000000
+  Running Task  : 1  at time : 150000000
+  Running Task  : 2  at time : 140000000
+  Running Task  : 2  at time : 150000000
+  Running Task  : 0  at time : 170000000
+  Running Task  : 0  at time : 180000000
+  Running Task  : 1  at time : 160000000
+  Running Task  : 1  at time : 170000000
+  Running Task  : 2  at time : 160000000
+  Running Task  : 2  at time : 170000000
+  Running Task  : 0  at time : 190000000
+  Running Task  : 0  at time : 200000000
+  End Task  : 0
+  Running Task  : 1  at time : 180000000
+  Running Task  : 1  at time : 190000000
+  Running Task  : 2  at time : 180000000
+  Running Task  : 2  at time : 190000000
+  Running Task  : 1  at time : 200000000
+  End Task  : 1
+  Running Task  : 2  at time : 200000000
+  End Task  : 2
+
+ex05c:
+  Description:
+
+  The fourth task with priority 80 now runs to completion first. This makes
+  sense since the scheduling strategy is only looked at for tasks that have the
+  same priority. With the standard FIFO scheduler, tasks with the same priority
+  are executed in the order that they were added. With the round-robin strategy
+  tasks with the same priority are rotated based on their timeslice. Since the
+  fourth task has a higher priority it is run until completion.
+
+  Output:
+
+  start task  : 0
+  Task  : 0
+  start task  : 1
+  Task  : 1
+  start task  : 2
+  Task  : 2
+  start task  : 3
+  Task  : 3
+  wake up all tasks
+  Running Task  : 3  at time : 10000000
+  Running Task  : 3  at time : 20000000
+  Running Task  : 3  at time : 30000000
+  Running Task  : 3  at time : 40000000
+  Running Task  : 3  at time : 50000000
+  Running Task  : 3  at time : 60000000
+  Running Task  : 3  at time : 70000000
+  Running Task  : 3  at time : 80000000
+  Running Task  : 3  at time : 90000000
+  Running Task  : 3  at time : 100000000
+  Running Task  : 3  at time : 110000000
+  Running Task  : 3  at time : 120000000
+  Running Task  : 3  at time : 130000000
+  Running Task  : 3  at time : 140000000
+  Running Task  : 3  at time : 150000000
+  Running Task  : 3  at time : 160000000
+  Running Task  : 3  at time : 170000000
+  Running Task  : 3  at time : 180000000
+  Running Task  : 3  at time : 190000000
+  Running Task  : 3  at time : 200000000
+  End Task  : 3
+  Running Task  : 0  at time : 10000000
+  Running Task  : 1  at time : 10000000
+  Running Task  : 2  at time : 10000000
+  Running Task  : 2  at time : 20000000
+  Running Task  : 0  at time : 20000000
+  Running Task  : 0  at time : 30000000
+  Running Task  : 1  at time : 20000000
+  Running Task  : 1  at time : 30000000
+  Running Task  : 2  at time : 30000000
+  Running Task  : 2  at time : 40000000
+  Running Task  : 0  at time : 40000000
+  Running Task  : 0  at time : 50000000
+  Running Task  : 1  at time : 40000000
+  Running Task  : 1  at time : 50000000
+  Running Task  : 2  at time : 50000000
+  Running Task  : 2  at time : 60000000
+  Running Task  : 0  at time : 60000000
+  Running Task  : 0  at time : 70000000
+  Running Task  : 1  at time : 60000000
+  Running Task  : 2  at time : 70000000
+  Running Task  : 2  at time : 80000000
+  Running Task  : 0  at time : 80000000
+  Running Task  : 0  at time : 90000000
+  Running Task  : 1  at time : 70000000
+  Running Task  : 1  at time : 80000000
+  Running Task  : 2  at time : 90000000
+  Running Task  : 2  at time : 100000000
+  Running Task  : 0  at time : 100000000
+  Running Task  : 0  at time : 110000000
+  Running Task  : 1  at time : 90000000
+  Running Task  : 1  at time : 100000000
+  Running Task  : 2  at time : 110000000
+  Running Task  : 2  at time : 120000000
+  Running Task  : 0  at time : 120000000
+  Running Task  : 0  at time : 130000000
+  Running Task  : 1  at time : 110000000
+  Running Task  : 1  at time : 120000000
+  Running Task  : 2  at time : 130000000
+  Running Task  : 2  at time : 140000000
+  Running Task  : 0  at time : 140000000
+  Running Task  : 0  at time : 150000000
+  Running Task  : 1  at time : 130000000
+  Running Task  : 1  at time : 140000000
+  Running Task  : 2  at time : 150000000
+  Running Task  : 2  at time : 160000000
+  Running Task  : 0  at time : 160000000
+  Running Task  : 0  at time : 170000000
+  Running Task  : 0  at time : 180000000
+  Running Task  : 1  at time : 150000000
+  Running Task  : 1  at time : 160000000
+  Running Task  : 2  at time : 170000000
+  Running Task  : 2  at time : 180000000
+  Running Task  : 0  at time : 190000000
+  Running Task  : 1  at time : 170000000
+  Running Task  : 1  at time : 180000000
+  Running Task  : 2  at time : 190000000
+  Running Task  : 2  at time : 200000000
+  End Task  : 2
+  Running Task  : 0  at time : 200000000
+  End Task  : 0
+  Running Task  : 1  at time : 190000000
+  Running Task  : 1  at time : 200000000
+  End Task  : 1
