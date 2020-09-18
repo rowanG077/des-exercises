@@ -5,9 +5,6 @@
 #include <alchemy/mutex.h>
 #include <alchemy/timer.h>
 
-#define SPINTIME   1e7
-#define TIMEUNIT   5e7
-
 RT_TASK lowPrio;
 RT_TASK medPrio;
 RT_TASK highPrio;
@@ -16,11 +13,11 @@ RT_MUTEX mysync;
 void high(void *arg) {
 
     for (int i = 0; i < 3; ++i) {
-      printf("High priority task tries to lock semaphore\n");
-      rt_mutex_acquire(&mysync,TM_INFINITE);
-      printf("High priority task locks semaphore\n");
-      printf("High priority task unlocks semaphore\n");
-      rt_mutex_release(&mysync);
+        printf("High priority task tries to lock semaphore\n");
+        rt_mutex_acquire(&mysync,TM_INFINITE);
+        printf("High priority task locks semaphore\n");
+        printf("High priority task unlocks semaphore\n");
+        rt_mutex_release(&mysync);
     }
 
     printf("..........................................High priority task ends\n");
@@ -28,10 +25,10 @@ void high(void *arg) {
 
 void med(void *arg) {
     for (int i = 0; i < 12; ++i) {
-      if (i == 2) {
-                        rt_task_start(&highPrio, &high, NULL);
-      }
-      printf("Medium task running\n");
+        if (i == 2) {
+            rt_task_start(&highPrio, &high, NULL);
+        }
+        printf("Medium task running\n");
     }
     printf("..........................................Medium priority task ends\n");
 }
@@ -39,13 +36,13 @@ void med(void *arg) {
 void low(void *arg) {
 
     for (int i = 0; i < 3; ++i) {
-      rt_mutex_acquire(&mysync,TM_INFINITE);
-      printf("Low priority task locks semaphore\n");
-      if (i == 0) {
-          rt_task_start(&medPrio, &med, NULL);
-      }
-      printf("Low priority task unlocks semaphore\n");
-      rt_mutex_release(&mysync);
+        rt_mutex_acquire(&mysync,TM_INFINITE);
+        printf("Low priority task locks semaphore\n");
+        if (i == 0) {
+            rt_task_start(&medPrio, &med, NULL);
+        }
+        printf("Low priority task unlocks semaphore\n");
+        rt_mutex_release(&mysync);
     }
 
     printf("..........................................Low priority task ends\n");
@@ -64,8 +61,8 @@ void startup() {
 
 int main(int argc, char* argv[])
 {
-  startup();
-  printf("\nType CTRL-C to end this program\n\n" );
-  pause();
+    startup();
+    printf("\nType CTRL-C to end this program\n\n" );
+    pause();
 }
 

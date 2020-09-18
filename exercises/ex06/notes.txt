@@ -6,7 +6,7 @@ ex06a:
 
   In order to simulate the required situation we start the tasks inside the
   lower priority tasks. This will cause the tasks to start as soon as the call
-  has been made. As nothing happens to prevent TODO
+  has been made. The output is shown below and matches the example output.
 
   Output:
 
@@ -39,17 +39,19 @@ ex06a:
   Low priority task unlocks semaphore
   Low priority task locks semaphore
   Low priority task unlocks semaphore
+  ..........................................Low priority task ends
 
 
 ex06b:
   Description:
 
-  By using a mutex we enforce priorty inheritance. As can be seen in the output,
-  after the high priority task first tries to obtain the lock, the low priority
-  inherits the priority. The low priority task then starts running until it
-  unlocks the semaphore after which its priority drops and the high priority
-  task can complete its task. Once this is finished the medium task will start
-  running until the end, followed by the low priority task.
+  By using a mutex we enforce priority inheritance. As can be seen in the
+  output, after the high priority task first tries to obtain the lock, the low
+  priority task inherits the priority of the high priority task. The low
+  priority task then starts running until it unlocks the semaphore after which
+  its priority drops and the high priority task can complete its task. Once this
+  is finished the medium task will be the one with the highest priority and will
+  start running until the end, followed by the low priority task.
 
   Output:
 
