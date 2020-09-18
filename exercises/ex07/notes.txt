@@ -1,0 +1,10 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+ex07c:
+  The button is wired in a pull-up configuration so when the button is not
+  pressed the pin is in a HIGH state and when pressed transitions to a LOW
+  state. So we wire up the interrupt to only trigger on a falling edge.
+  Each time the button is pressed the read function returns and the led
+  is toggled.
+  Output:
