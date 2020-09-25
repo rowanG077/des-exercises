@@ -58,6 +58,8 @@ void pinToggler(void* arg) {
     rt_sem_p(&interruptSync, TM_INFINITE);
     rt_task_sleep(50e6);
 
+    rt_task_set_periodic(NULL, TM_NOW, 1e6);
+
     for (unsigned int i = 0; i < MEASURECOUNT; ++i) {
         toggleTimes[i] = rt_timer_read();
         if (write(led, &led_state, sizeof(led_state)) != sizeof(led_state)) {
@@ -98,15 +100,15 @@ void interruptReader(void* arg) {
 void worker(void* arg) {
     printf("Start working \n");
     while (1) {
-        rt_task_sleep(200e6);
+        rt_task_sleep(200e3);
         printf(".");
-        rt_timer_spin(500e6);
+        rt_timer_spin(500e3);
     }
 }
 
 void calc_time_diffs(RTIME* toggleTimes, RTIME* interruptTimes, RTIME* timeDiffs) {
     for (unsigned int i = 0; i < MEASURECOUNT; ++i) {
-        timeDiffs[i] = toggleTimes[i] - interruptTimes[i];
+        timeDiffs[i] = interruptTimes[i] - toggleTimes[i];
     }
 }
 
@@ -145,11 +147,9 @@ int main(int argc, char* argv[])
     rt_sem_create(&mysync, "mySync", 0, S_FIFO);
     rt_sem_create(&interruptSync, "interruptSync", 0, S_FIFO);
 
-    rt_task_create(&togglerTask, "togglerTask", 0, 50, 0);
-    rt_task_create(&workerTask, "workerTask", 0, 50, 0);
+    rt_task_create(&togglerTask, "togglerTask", 0, 40, 0);
+    rt_task_create(&workerTask, "workerTask", 0, 30, 0);
     rt_task_create(&interruptTask, "interruptTask", 0, 50, 0);
-
-    rt_task_set_periodic(&togglerTask, TM_NOW, 1e6);
 
     rt_task_start(&interruptTask, &interruptReader, interruptTimes);
     rt_task_start(&togglerTask, &pinToggler, toggleTimes);
