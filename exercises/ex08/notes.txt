@@ -1,0 +1,27 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+ex08a:
+    Description
+
+    The program ex08a generates a .csv file called 'ex08a.csv'. This file
+    contains the measured data. '08a.pdf' contains a scatter plot of this data.
+    In this plot we can see that, aside from some outliers in the first couple
+    of measurements, the measured time difference is generally close to the task
+    period. We have included the average nanoseconds in the file name, which in
+    this run was 99989 ns.
+
+ex08b:
+    Description
+
+    The program ex08b generates a .csv file called 'ex08b.csv'. Similar to
+    ex08a, this file contains the measured data. The file
+    'ex08b_worker_222332.csv' contains the measured data for when the worker
+    task was included and the file 'ex0b_noworker_21852.csv' for when it wasn't.
+    The files '08b-worker.pdf' and '08b-no-worker.pdf' contain the scatter plots
+    of the respective data.
+
+    As can be seen from the file names both version have an average interrupt
+    latency of around 22200 ns. However, from the scatter plot we can see that
+    the version where the worker task was running has some more outliers
+    overall.
