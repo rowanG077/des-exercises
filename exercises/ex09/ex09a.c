@@ -40,7 +40,7 @@ void write_RTIMES(char * filename, RTIME *spinTimes, RTIME *eclipseTimes, size_t
     FILE *file;
     file = fopen(filename, "w");
 
-    fprintf("index;spinTime(ns);eclipseTime(ns)\n");
+    fprintf(file, "index;spinTime(ns);eclipseTime(ns)\n");
     for (size_t i = 0; i < size; ++i) {
         fprintf(file, "%u;%llu;%llu\n", i, spinTimes[i], eclipseTimes[i]);
     }

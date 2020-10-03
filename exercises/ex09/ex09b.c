@@ -6,12 +6,13 @@
 
 #include <alchemy/sem.h>
 #include <alchemy/task.h>
+#include <alchemy/mutex.h>
 #include <rtdm/gpio.h>
 
 #define LEDCOUNT 8
 #define CHARWIDTH 8
 
-// How many tenth of degrees need to pass to determine a full pixel. 
+// How many tenth of degrees need to pass to determine a full pixel.
 static const uint16_t TENTHDEGPERPIXEL = 50;
 // At what offset from the light sensor the char will be drawn.
 static const uint16_t DRAWTARGET = 1800;
@@ -72,7 +73,7 @@ void set_led(int led, uint32_t curr_state, uint32_t new_state) {
     if (curr_state == new_state) {
         return;
     }
-    if (write(led, &state, sizeof(state)) != sizeof(state)) {
+    if (write(led, &new_state, sizeof(new_state)) != sizeof(new_state)) {
         fprintf(stderr, "Error while writing to led.\n");
         exit(1);
     }
@@ -97,7 +98,7 @@ void write_column(int leds[LEDCOUNT], uint32_t curr_states[LEDCOUNT], uint8_t co
     for (uint8_t i = 0; i < LEDCOUNT; ++i) {
         uint8_t state = (column >> i) & 1;
         set_led(leds[i], curr_states[i], state);
-        curr_state[i] = state;
+        curr_states[i] = state;
     }
 }
 
@@ -108,14 +109,14 @@ void led_controller(void* arg) {
     uint32_t ledStates[LEDCOUNT] = { 0 };
     uint16_t writePositions[CHARWIDTH];
 
-    led[0] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio2");
-    led[1] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio3");
-    led[2] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio4");
-    led[3] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio17");
-    led[4] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio27");
-    led[5] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio22");
-    led[6] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio10");
-    led[7] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio9");
+    leds[0] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio2");
+    leds[1] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio3");
+    leds[2] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio4");
+    leds[3] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio17");
+    leds[4] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio27");
+    leds[5] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio22");
+    leds[6] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio10");
+    leds[7] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio9");
 
     for (size_t i = 0; i < CHARWIDTH; ++i) {
         writePositions[i] = DRAWTARGET - (TENTHDEGPERPIXEL / 2) - (((CHARWIDTH - 1) / 2) * TENTHDEGPERPIXEL) + i * TENTHDEGPERPIXEL;
@@ -134,8 +135,8 @@ void led_controller(void* arg) {
         last_deg = current_deg;
     }
 
-    for (size_t i = 0; i < MEASURECOUNT; ++i) {
-        close_gpio(led[i]);
+    for (size_t i = 0; i < LEDCOUNT; ++i) {
+        close_gpio(leds[i]);
     }
 
     return;
