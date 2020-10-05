@@ -17,8 +17,6 @@
 
 /* How many tenth of degrees need to pass to determine a full pixel. */
 static const uint16_t TENTHDEG_PER_PIXEL = 50;
-/* Characters are drawn starting at a target angle. */
-static const uint16_t DRAW_TARGET = 0;
 /* Representation of characters */
 // clang-format off
 static const uint8_t LETTER[CHARWIDTH] =
@@ -34,15 +32,19 @@ static const uint8_t LETTER[CHARWIDTH] =
 // clang-format on
 
 /* Run the program for a set amount pf periods */
-static const size_t PERIOD_COUNT_MAX = 50;
+static const size_t PERIOD_COUNT_MAX = 150;
 static size_t period_counter = 0;
 
 /* Semaphore to ensure proper execution. */
 static RT_SEM measure_sync;
 
+/* Mutex to guard position data */
+static RT_MUTEX position_lock;
+/* Position data of the character to draw. */
+static int16_t write_pos[CHARWIDTH] = {0};
+
 /* Mutex to guard global period data. */
 static RT_MUTEX measure_lock;
-
 /* Amount of nanoseconds per tenth degree in the currently measured period */
 static RTIME nanos_per_tenth_deg = 0 - 1;
 /* Time that the sensor last triggered. */
@@ -191,9 +193,7 @@ static void led_controller(void *arg)
 	int16_t current_deg;
 	int leds[LEDCOUNT];
 	uint32_t led_states[LEDCOUNT] = {0};
-	int16_t write_pos[CHARWIDTH];
-	int16_t start_pos;
-	int16_t pos;
+	int16_t write_pos_[CHARWIDTH];
 
 	leds[0] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio2");
 	leds[1] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio3");
@@ -204,23 +204,6 @@ static void led_controller(void *arg)
 	leds[6] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio10");
 	leds[7] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio9");
 
-	/*
-	 * Determine the position to draw at. If a character needs to be drawn
-	 * at position x then we need to draw some degrees before x and some
-	 * degrees after x.
-	 */
-	start_pos = (TENTHDEG_PER_PIXEL / 2)
-		+ (((CHARWIDTH - 1) / 2) * TENTHDEG_PER_PIXEL);
-	if (start_pos > DRAW_TARGET) {
-		start_pos = 3600 - start_pos;
-	} else {
-		start_pos = DRAW_TARGET - start_pos;
-	}
-
-	for (size_t i = 0; i < CHARWIDTH; ++i) {
-		write_pos[i] = (start_pos + i * TENTHDEG_PER_PIXEL) % 3600;
-	}
-
 	while (period_counter < PERIOD_COUNT_MAX) {
 		current_deg = estimate_disk_pos();
 
@@ -230,9 +213,13 @@ static void led_controller(void *arg)
 			continue;
 		}
 
+		rt_mutex_acquire(&position_lock, TM_INFINITE);
+		memcpy(&write_pos_, &write_pos, CHARWIDTH * sizeof(uint16_t));
+		rt_mutex_release(&position_lock);
+
 		for (size_t i = 0; i < CHARWIDTH; ++i) {
-			if (last_deg < write_pos[i]
-				&& current_deg >= write_pos[i]) {
+			if (last_deg < write_pos_[i]
+				&& current_deg >= write_pos_[i]) {
 				write_column(leds, led_states, LETTER[i]);
 				break;
 			}
@@ -291,17 +278,54 @@ static void disk_measure(void *arg)
 	return;
 }
 
+/**
+ * The position update task updates the positions where the led controller will
+ * draw the letter at.
+ */
+static void position_update(void *arg)
+{
+	int16_t start_pos = 0;
+	uint16_t draw_target = 0;
+
+	rt_task_set_periodic(NULL, TM_NOW, 500e6);
+	while (period_counter < PERIOD_COUNT_MAX) {
+		rt_mutex_acquire(&position_lock, TM_INFINITE);
+
+		start_pos = (TENTHDEG_PER_PIXEL / 2)
+			+ (((CHARWIDTH - 1) / 2) * TENTHDEG_PER_PIXEL);
+		if (start_pos > draw_target) {
+			start_pos = 3600 - start_pos;
+		} else {
+			start_pos = draw_target - start_pos;
+		}
+
+		for (size_t i = 0; i < CHARWIDTH; ++i) {
+			write_pos[i] =
+				(start_pos + i * TENTHDEG_PER_PIXEL) % 3600;
+		}
+		rt_mutex_release(&position_lock);
+
+		rt_task_wait_period(NULL);
+		draw_target = (draw_target + 30) % 3600;
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	RT_TASK controller_task;
 	RT_TASK measure_task;
+	RT_TASK position_update_task;
 
 	rt_sem_create(&measure_sync, "measure_sync", 0, S_FIFO);
 	rt_mutex_create(&measure_lock, "measure_lock");
+	rt_mutex_create(&position_lock, "position_lock");
+
 	rt_task_create(&measure_task, "measure_task", 0, 70, 0);
+	rt_task_create(&position_update_task, "position_update_task", 0, 60, 0);
 	rt_task_create(&controller_task, "controller_task", 0, 50, 0);
 
 	rt_task_start(&measure_task, &disk_measure, NULL);
+	rt_task_start(&position_update_task, &position_update, NULL);
 	rt_task_start(&controller_task, &led_controller, NULL);
 
 	rt_sem_p(&measure_sync, TM_INFINITE);

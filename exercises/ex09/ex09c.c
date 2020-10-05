@@ -18,7 +18,7 @@
 /* How many tenth of degrees need to pass to determine a full pixel. */
 static const uint16_t TENTHDEG_PER_PIXEL = 50;
 /* Characters are drawn starting at a target angle. */
-static const uint16_t DRAW_TARGET = 0;
+static const uint16_t DRAW_TARGET = 1800;
 /* Representation of characters */
 // clang-format off
 static const uint8_t LETTER[CHARWIDTH] =
