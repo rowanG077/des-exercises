@@ -7,30 +7,30 @@ IMPORTANT:
    While we were working on the assignments we encountered an annoying bug.
    Sometimes our implementation deadlocks. We spent several hours debugging to
    find out the reason. Eventually we discovered that sometimes the first call
-   to read() (for interrupts from the light sensor) never returns, even if the
-   light sensor detects light. We have made a minimal example which simply
-   creates a Xenomai task and performs a *single* read() call. It prints a text
-   string before and after this read() call. Using this minimal example we were
-   able to reproduce the issue on several raspberry pi setups. This minimal
-   example has been sent to the professor Jozef Hooman. Furthermore, we have
-   also been able to reproduce the same issue with the given 'draw_x' binary.
-   We have also asked some classmates to try and reproduce this issue with their
-   solution and have found that it occurs for theirs as well. Because of this
-   the programs given below might sometimes not show anything. If this happens
-   you can a SIGINT with CTRL-C and restart the program.
+   to read() (required for interrupts from the light sensor) never returns, even
+   if the light sensor detects light. We have made a minimal example which
+   simply creates a Xenomai task and performs a *single* read() call. It prints
+   a text string before and after this read() call. Using this minimal example
+   we were able to reproduce the issue on several raspberry pi setups. This
+   minimal example has been sent to the professor Jozef Hooman. Furthermore, we
+   have also been able to reproduce the same issue with the given 'draw_x'
+   binary.  We have also asked some classmates to try and reproduce this issue
+   with their solution and have found that it occurs for theirs as well. Because
+   of this the programs given below might sometimes not show anything. If this
+   happens you can send a SIGINT with CTRL-C and restart the program.
 
 ex09a:
     Description
 
-    Our implementation for 9a generates a csv files '09a.csv' that contains the
-    requested information. For the assignment we ran the program twice; one for
-    the motor on 'slow' speed and once on 'fast' speed. The files 09a_fast.csv
-    and 09a_slow.csv contain the results. It contains three columns. The first
-    column indicates the measurement number, the second the time for one
-    rotation in nanoseconds, and the third column contains the time it takes to
-    pass the light sensor in nanoseconds. From the results we can see that the
-    'fast' speed is about 28% faster than the 'slow' speed. The results are
-    summarized below:
+    Our implementation for 9a generates a csv file '09a.csv' that contains the
+    requested information. For the assignment we ran the program twice; once for
+    the motor on 'slow' speed and once on the 'fast' speed. The files
+    09a_fast.csv and 09a_slow.csv contain the results. Each file contains three
+    columns. The first column indicates the measurement number, the second the
+    time for one rotation in nanoseconds, and the third column contains the time
+    it takes to pass the light sensor in nanoseconds. From the results we can
+    see that the 'fast' speed is about 28% faster than the 'slow' speed. The
+    results are summarized below:
 
     Slow speed:
         Average cycle time: 123511892 nanoseconds
@@ -50,15 +50,15 @@ ex09d:
     Our implementation for assignments 9b, 9c, and 9d are all very similar. The
     implementation uses two tasks. The first task measures the disk's rotation
     speed. It stores the last measurement time as well as the amount of
-    nanoseconds per tenth of degree. In the program configuration we store how
+    nanoseconds per tenths of degree. In the program configuration we store how
     many tenths of degrees we view as one pixel. The second task takes care of
-    setting the LEDs.  It first calculates at which degrees it should draw the
-    columns for a character. This is based upon the configuration mentioned
-    above. After calculating this the task goes into a loop where it calculates
-    the current position of the LED column based on the information gathered by
-    the first task. It then checks if it should draw the column for a character
-    at the current position and, if so, draws it. The measurement task has the
-    highest priority and the draw task the lowest.
+    drawing. It first calculates at which degrees it should draw the columns for
+    a character. This is based upon the configuration mentioned above. After
+    calculating this the task goes into a loop where it calculates the current
+    position of the LED column based on the information gathered by the first
+    task. It then checks if it should draw the column for a character at the
+    current position and, if so, draws it. The measurement task has the highest
+    priority and the draw task the lowest.
 
     The only difference between our implementation of 9b and 9c is the position
     where it draws the X.
@@ -74,8 +74,8 @@ ex09d:
 ex09e:
     Description
 
-    Exercise 9e is in a subfolder called 'ex09e' in order to make the directory
-    a bit clearer. This directory contains our source file ex09e.c and the files
-    listed on the course website. The implementation is similar to 9d except
-    that we now write a rotating text string. In this case it draws the text
-    "hello".
+    Exercise 9e is in a sub-directory called 'ex09e' in order to make the
+    structure a bit clearer. The directory contains our source file ex09e.c and
+    the files listed on the course website. The implementation is similar to 9d
+    except that we now write a rotating text string. In this case it draws the
+    text "hello".
