@@ -68,9 +68,6 @@ ex09d:
     updating the location where the character should be drawn. It does this by
     executing the task on a set period.
 
-    All of these implementations run for  some amount of cycles so that the
-    program exits automatically after a while.
-
 ex09e:
     Description
 

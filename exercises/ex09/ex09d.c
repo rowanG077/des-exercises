@@ -31,13 +31,6 @@ static const uint8_t LETTER[CHARWIDTH] =
 };
 // clang-format on
 
-/* Run the program for a set amount pf periods */
-static const size_t PERIOD_COUNT_MAX = 650;
-static size_t period_counter = 0;
-
-/* Semaphore to ensure execution only starts after the first interrupt. */
-static RT_SEM initial_read_sync;
-
 /* Semaphore to ensure proper execution. */
 static RT_SEM measure_sync;
 
@@ -212,8 +205,6 @@ static void led_controller(void *arg)
 	uint32_t led_states[LEDCOUNT] = {0};
 	int16_t write_pos_[CHARWIDTH];
 
-	rt_sem_p(&initial_read_sync, TM_INFINITE);
-
 	leds[0] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio2");
 	leds[1] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio3");
 	leds[2] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio4");
@@ -223,7 +214,7 @@ static void led_controller(void *arg)
 	leds[6] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio10");
 	leds[7] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio9");
 
-	while (period_counter < PERIOD_COUNT_MAX) {
+	while (1) {
 		current_deg = estimate_disk_pos();
 
 		/* Turn the LEDS off if we can't determine the position */
@@ -245,6 +236,8 @@ static void led_controller(void *arg)
 		}
 
 		last_deg = current_deg;
+
+		rt_task_sleep(200e3);
 	}
 
 	for (size_t i = 0; i < LEDCOUNT; ++i) {
@@ -267,7 +260,7 @@ static void disk_measure(void *arg)
 	RTIME last_trigger_t = current_t;
 	RTIME nanos_per_tenth_deg_ = 0 - 1; // force underflow
 
-	while (period_counter < PERIOD_COUNT_MAX) {
+	while (1) {
 		if (read(lightsensor, &lightsensor_value,
 			    sizeof(lightsensor_value))
 			!= sizeof(lightsensor_value)) {
@@ -287,13 +280,6 @@ static void disk_measure(void *arg)
 		rt_mutex_release(&measure_lock);
 
 		last_trigger_t = current_t;
-
-		++period_counter;
-
-		if (period_counter == 1) {
-			printf("Releasing semaphore after first interrupt.\n");
-			rt_sem_broadcast(&initial_read_sync);
-		}
 	}
 
 	close_gpio(lightsensor);
@@ -311,10 +297,8 @@ static void position_update(void *arg)
 	int16_t start_pos = 0;
 	uint16_t draw_target = 0;
 
-	rt_sem_p(&initial_read_sync, TM_INFINITE);
-
 	rt_task_set_periodic(NULL, TM_NOW, 500e6);
-	while (period_counter < PERIOD_COUNT_MAX) {
+	while (1) {
 		rt_mutex_acquire(&position_lock, TM_INFINITE);
 
 		start_pos = draw_target
@@ -338,7 +322,6 @@ int main(int argc, char *argv[])
 	RT_TASK measure_task;
 	RT_TASK position_update_task;
 
-	rt_sem_create(&initial_read_sync, "initial_read_sync", 0, S_FIFO);
 	rt_sem_create(&measure_sync, "measure_sync", 0, S_FIFO);
 	rt_mutex_create(&measure_lock, "measure_lock");
 	rt_mutex_create(&position_lock, "position_lock");
