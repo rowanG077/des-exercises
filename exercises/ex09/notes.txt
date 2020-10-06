@@ -49,16 +49,25 @@ ex09d:
 
     Our implementation for assignments 9b, 9c, and 9d are all very similar. The
     implementation uses two tasks. The first task measures the disk's rotation
-    speed. It stores the last measurement time as well as the amount of
-    nanoseconds per tenths of degree. In the program configuration we store how
-    many tenths of degrees we view as one pixel. The second task takes care of
-    drawing. It first calculates at which degrees it should draw the columns for
-    a character. This is based upon the configuration mentioned above. After
-    calculating this the task goes into a loop where it calculates the current
-    position of the LED column based on the information gathered by the first
-    task. It then checks if it should draw the column for a character at the
-    current position and, if so, draws it. The measurement task has the highest
-    priority and the draw task the lowest.
+    speed. Ever time the light sensor triggers an interrupt the task computes
+    the disk period by comparing the last interrupt time to the time of the
+    current interrupt. In our implementation we view the disk at intervals of
+    tenths of degrees. We then view a certain amount of tenths of degrees as a
+    single pixel. By modifying this value we can make the characters appear
+    wider or thinner. Each character in turn is represented as a set of pixels.
+    The measure task also computes how many nanoseconds there are per tenths of
+    degrees based on the currently measured disk period.
+
+    The second task takes care of drawing. It first calculates at which degrees
+    it should draw the columns for a character. This is based upon the
+    configuration mentioned above. After calculating this the task goes into a
+    loop where it calculates the current position of the LED column based on the
+    information gathered by the first task. It does this by looking at the
+    'nanoseconds per tenths of degrees' mentioned above and by looking at the
+    time since the last light sensor interrupt. It then checks if the current
+    position is one where it should set the LED columns to some value and, if it
+    is, sets them. The measurement task has the highest priority and the draw
+    task the lowest.
 
     The only difference between our implementation of 9b and 9c is the position
     where it draws the X.
@@ -75,4 +84,6 @@ ex09e:
     structure a bit clearer. The directory contains our source file ex09e.c and
     the files listed on the course website. The implementation is similar to 9d
     except that we now write a rotating text string. In this case it draws the
-    text "hello".
+    text "hello". Since our implementation in ex09d already used the same
+    encoding for characters we had to change very little in order to draw a full
+    string of characters.
