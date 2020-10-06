@@ -23,7 +23,7 @@
 static const char *const LED_STRING = "hello";
 
 /* How many tenth of degrees need to pass to determine a full pixel. */
-static const uint16_t TENTHDEG_PER_PIXEL = 50;
+static const uint16_t TENTHDEG_PER_PIXEL = 30;
 /* Representation of characters */
 static uint8_t display_string[STRINGWIDTH] = {0};
 
