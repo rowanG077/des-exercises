@@ -15,7 +15,9 @@ IMPORTANT:
    example has been sent to the professor Jozef Hooman. Furthermore, we have
    also been able to reproduce the same issue with the given 'draw_x' binary.
    We have also asked some classmates to try and reproduce this issue with their
-   solution and have found that it occurs for theirs as well.
+   solution and have found that it occurs for theirs as well. Because of this
+   the programs given below might sometimes not show anything. If this happens
+   you can a SIGINT with CTRL-C and restart the program.
 
 ex09a:
     Description
@@ -66,6 +68,9 @@ ex09d:
     updating the location where the character should be drawn. It does this by
     executing the task on a set period.
 
+    All of these implementations run for  some amount of cycles so that the
+    program exits automatically after a while.
+
 ex09e:
     Description
 
@@ -74,4 +79,3 @@ ex09e:
     listed on the course website. The implementation is similar to 9d except
     that we now write a rotating text string. In this case it draws the text
     "hello".
-

@@ -34,8 +34,11 @@ static const uint8_t LETTER[CHARWIDTH] =
 // clang-format on
 
 /* Run the program for a set amount pf periods */
-static const size_t PERIOD_COUNT_MAX = 50;
+static const size_t PERIOD_COUNT_MAX = 100;
 static size_t period_counter = 0;
+
+/* Semaphore to ensure execution only starts after the first interrupt. */
+static RT_SEM initial_read_sync;
 
 /* Semaphore to ensure proper execution. */
 static RT_SEM measure_sync;
@@ -195,6 +198,8 @@ static void led_controller(void *arg)
 	int16_t start_pos;
 	int16_t pos;
 
+	rt_sem_p(&initial_read_sync, TM_INFINITE);
+
 	leds[0] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio2");
 	leds[1] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio3");
 	leds[2] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio4");
@@ -283,6 +288,11 @@ static void disk_measure(void *arg)
 		last_trigger_t = current_t;
 
 		++period_counter;
+
+		if (period_counter == 1) {
+			printf("Releasing semaphore after first interrupt.\n");
+			rt_sem_v(&initial_read_sync);
+		}
 	}
 
 	close_gpio(lightsensor);
@@ -296,6 +306,7 @@ int main(int argc, char *argv[])
 	RT_TASK controller_task;
 	RT_TASK measure_task;
 
+	rt_sem_create(&initial_read_sync, "initial_read_sync", 0, S_FIFO);
 	rt_sem_create(&measure_sync, "measure_sync", 0, S_FIFO);
 	rt_mutex_create(&measure_lock, "measure_lock");
 	rt_task_create(&measure_task, "measure_task", 0, 70, 0);

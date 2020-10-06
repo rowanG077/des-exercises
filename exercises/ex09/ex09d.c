@@ -32,8 +32,11 @@ static const uint8_t LETTER[CHARWIDTH] =
 // clang-format on
 
 /* Run the program for a set amount pf periods */
-static const size_t PERIOD_COUNT_MAX = 150;
+static const size_t PERIOD_COUNT_MAX = 650;
 static size_t period_counter = 0;
+
+/* Semaphore to ensure execution only starts after the first interrupt. */
+static RT_SEM initial_read_sync;
 
 /* Semaphore to ensure proper execution. */
 static RT_SEM measure_sync;
@@ -87,6 +90,20 @@ static int open_lightsensor_gpio(void)
 	}
 
 	return fd;
+}
+
+/**
+ * Calculate the modulo. The default % operator in C is the remainder, which
+ * doesn't work for negative values.
+ *
+ * \param x Integer value.
+ * \param y Integer value, must be > 0
+ * \return x mod y
+ */
+static inline int mod(int x, int y)
+{
+	int r = x % y;
+	return r < 0 ? r + y : r;
 }
 
 /**
@@ -195,6 +212,8 @@ static void led_controller(void *arg)
 	uint32_t led_states[LEDCOUNT] = {0};
 	int16_t write_pos_[CHARWIDTH];
 
+	rt_sem_p(&initial_read_sync, TM_INFINITE);
+
 	leds[0] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio2");
 	leds[1] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio3");
 	leds[2] = open_led_gpio("/dev/rtdm/pinctrl-bcm2835/gpio4");
@@ -270,6 +289,11 @@ static void disk_measure(void *arg)
 		last_trigger_t = current_t;
 
 		++period_counter;
+
+		if (period_counter == 1) {
+			printf("Releasing semaphore after first interrupt.\n");
+			rt_sem_broadcast(&initial_read_sync);
+		}
 	}
 
 	close_gpio(lightsensor);
@@ -287,21 +311,19 @@ static void position_update(void *arg)
 	int16_t start_pos = 0;
 	uint16_t draw_target = 0;
 
+	rt_sem_p(&initial_read_sync, TM_INFINITE);
+
 	rt_task_set_periodic(NULL, TM_NOW, 500e6);
 	while (period_counter < PERIOD_COUNT_MAX) {
 		rt_mutex_acquire(&position_lock, TM_INFINITE);
 
-		start_pos = (TENTHDEG_PER_PIXEL / 2)
-			+ (((CHARWIDTH - 1) / 2) * TENTHDEG_PER_PIXEL);
-		if (start_pos > draw_target) {
-			start_pos = 3600 - start_pos;
-		} else {
-			start_pos = draw_target - start_pos;
-		}
+		start_pos = draw_target
+			- ((TENTHDEG_PER_PIXEL / 2)
+				+ (((CHARWIDTH - 1) / 2) * TENTHDEG_PER_PIXEL));
 
 		for (size_t i = 0; i < CHARWIDTH; ++i) {
 			write_pos[i] =
-				(start_pos + i * TENTHDEG_PER_PIXEL) % 3600;
+				mod(start_pos + i * TENTHDEG_PER_PIXEL, 3600);
 		}
 		rt_mutex_release(&position_lock);
 
@@ -316,6 +338,7 @@ int main(int argc, char *argv[])
 	RT_TASK measure_task;
 	RT_TASK position_update_task;
 
+	rt_sem_create(&initial_read_sync, "initial_read_sync", 0, S_FIFO);
 	rt_sem_create(&measure_sync, "measure_sync", 0, S_FIFO);
 	rt_mutex_create(&measure_lock, "measure_lock");
 	rt_mutex_create(&position_lock, "position_lock");
