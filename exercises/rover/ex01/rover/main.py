@@ -17,7 +17,7 @@ def measure_distance():
 my_display = Display()
 
 us = UltrasonicSensor(INPUT_3)
-us.mode = 'US-DIST-CM'
+us.mode = UltrasonicSensor.MODE_US_DIST_CM
 
 ts_right = TouchSensor(INPUT_4)
 ts_left = TouchSensor(INPUT_1)
