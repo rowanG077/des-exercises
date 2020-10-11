@@ -1,0 +1,109 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+Note:
+
+	We found a small bug in the simulator. The GUI crashes when you press
+	either the left or right mouse button on a location with no (nearby)
+	objects. We've made a PR on GitHub that fixes this, see
+	https://github.com/ev3dev-python-tools/ev3dev2simulator/pull/29
+
+Small rover assignment:
+
+	Develop a Python program for small EV3 robot which, in this order of
+	priority:
+
+	    1. Stays within black border
+	    2. Detects collisions with objects (e.g., bottle)
+	    3. tries to avoid collisions with object
+
+	Optionally: indicate status using sounds and/or LED lights
+
+Description:
+
+	The area in the simulator consists out of a white rectangle with black
+	borders. Inside the rectangle are several coloured circles and a single
+	bottle. The robot consists out of a single brick.
+
+	In our program we simply create the sensors and actuators connected to
+	the brick. By default the robot will drive at 30% speed for both motors.
+	While it is running it executes the following tasks in given priority.
+
+		1. Check if the single colour sensor has detected the black
+		   colour, and if so, drive backwards and rotate.
+		2. Check if the ultrasonic sensor has detected something nearby,
+		   and if so, drive backwards and rotate.
+		3. Check if the right touch sensor has detected something, and
+		   if so, drive backwards and rotate left.
+		4. Check if the left touch sensor has detected something, and
+		   if so, drive backwards and rotate left.
+
+	For each of these steps it also produces a beep. This happens after the
+	motors are stopped since the sound is blocking by default.
+
+	Note:
+
+	We intentionally did not use a 'reusable' program structure. This is
+	because we don't know the requirements for the later exercises, as well
+	as the specifics of the DSL and the generator. We both have experience
+	with having to rewrite software because the requirements were not
+	flushed out. In order to avoid this we used a simple approach for this
+	assignment to get used to the ev3 environment. We did think about a more
+	structured approach and have written the ideas down below. For later
+	exercises we can flush this out before we do the actual implementation.
+
+	Example structure we could use later on:
+
+	Since multiple bricks might be used we would want some distinction
+	between the roles of each brick. Having one brick be responsible for the
+	actual decision making simplifies the design and complexity, i.e. a
+	'master' brick. Other 'slave' bricks would then do nothing but register
+	their sensors and/or actuators to the master brick. Communication would
+	then flow two ways. Slaves send sensor information to the master brick
+	while they can also receive instructions from the master brick to
+	start/stop actuators. When sensors are registered to the master brick
+	the user can provide a function to handle logic for that sensor as well
+	as a priority. The master brick could then in its main loop iterate
+	through the registered functions based on the priority and execute them.
+	Registered functions receive the brick as well as the sensor as an
+	argument. With this they can interact with other parts of the robot. For
+	the functions themselves the difference between master and slave bricks
+	would be abstracted away. They can view the system as a single robot.
+	The basic logic would be written in the form of a library. Each brick
+	would then use this library to write its own logic with its inputs.
+	Using this you would easily be able to add more bricks as well as extend
+	logic for more complex missions. Generation from a DSL should also not
+	be too difficult.
+
+	Some pseudo code for a situation with one master brick and one slave
+	brick is given below.
+
+	Master brick:
+
+	import ourlibrary
+
+	...
+
+	brick = MasterBrick(name)
+	brick.register_slave(name, sensors, actuators)
+
+	brick.add_sensor(input, name, type)
+	brick.add_actuator(input, name, type)
+
+	brick.handle_sensor(name, priority, function)
+	# run would first wait for slaves to connect, then start its main loop
+	brick.run()
+
+	Slave brick:
+
+	import ourlibrary
+
+	..
+
+	brick = SlaveBrick(name)
+	brick.add_sensor(input, name, type)
+	brick.add_actuator(input, name, type
+
+	# connect_master connects to the master brick and sends information
+	# about the slave brick (name, sensors, actuators, address)
+	brick.connect_master(address)
