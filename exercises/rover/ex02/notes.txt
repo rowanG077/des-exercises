@@ -1,0 +1,119 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+Small rover assignment:
+
+	Develop Python program(s) for two small EV3 robots such that, in this
+	order of priority:
+
+	   * They stay within black border
+	   * Together they detect all colors
+	   * They give a signal, e.g. sound or LED light, on both rovers when a
+	     color is detected
+	   * Both rovers stop and give signal when all colors have been detected
+	   * They perform collision avoidance and detection (including other
+	     robot)
+
+Note:
+
+	We tested the assignment with the simulator. One noticeable difference
+	is that the BluetoothSocket class that the simulator mocks is slightly
+	different in behavior compared to PyBluez's BluetoothSocket. For
+	example, the mocked recv() call returns the received data as a string by
+	calling decode() on the data. PyBluez's BluetoothSocket simply calls the
+	socket recv() which it wraps[1]. According to the python
+	documentation[2] recv simply returns the byte object. Due to the above
+	it is unlikely that our solution will run without modification on the
+	real robot.
+
+	[1] - https://github.com/pybluez/pybluez/blob/d7f36702bba2abc8ea41977b2eea56a17431ac6d/bluetooth/bluez.py#L233
+	[2] - https://docs.python.org/3/library/socket.html#socket.socket.recv
+
+Description:
+
+	The area in the simulator consists out of a white rectangle with black
+	borders. Inside the rectangle are several colored circles and a single
+	bottle. By starting the simulator with 'ev3dev2simulator -t
+	config_small2' two robots are spawned.
+
+	Our implementation uses the subsumption architecture mentioned in the
+	lectures. The file robot.py contains the classes that are relevant for
+	the robot, such as the robot itself and the arbitrator. behavior.py
+	contains all behaviors.
+
+	The general structure is that the user can create a new Robot object.
+	This robot expects the MAC address of the 'server' robot and whether or
+	not this robot acts as the server. Once the object is created behaviors
+	can be added to the robot. Each behavior must inherit the base Behavior
+	class. Behaviors expect the robot, priority, sensors, and actuators as
+	arguments. Once the behaviors have been added the run() method of the
+	Robot object can be called. This method first connects to the other
+	robot. After the connection has been established the Arbitrator is
+	started. The arbitrator keeps scheduling the behaviors in order of
+	priority until there are no more behaviors that want control.
+
+	Our implementation uses the same terminology as mentioned in the lecture
+	slides. We make use of python's generator functionality in order to stop
+	running actions. This means that behaviors use the 'yield' functionality
+	in order to yield control. This is similar to how a different solution
+	could use a 'suppress' flag and a conditional statement in order to exit
+	early.
+
+	For the network architecture a simple server-client system is used. Both
+	robots run the same program where one of them acts as the server. This
+	can be specified by an optional argument to the main script. The server
+	must be running before the client robot can be started. The server robot
+	waits until the client has connected before starting the mission. The
+	robot starts a separate thread for listening to incoming messages.
+	Behaviors can subscribe to specific messages. Once a message has been
+	received the robot searches through the list of behaviors that have
+	subscribed to the message type and delegates the message to them.
+
+	We use four behaviors.
+
+		1. StayInBoundsBehavior: This behavior tries to stay within the
+		   black border. It wants control as soon as it detect the color
+		   black. It runs with the highest priority.
+		2. UltrasonicDistanceBehavior: This behavior tries to avoid
+		   collision with objects by using the ultrasonic sensor. It
+		   avoids when objects are close than 250cm. This has the second
+		   highest priority.
+		3. AvoidTouchObjectBehavior: This behavior tries to avoid
+		   objects once it has detected them with either touch sensor.
+		   It has the third highest priority.
+		4. SearchBehavior: This behavior searches for the three colored
+		   sports. If it encounters one it synchronizes its state with
+		   the other robot. If an undiscovered spot is encountered it
+		   increments the LED brightness with 1/3. Once all spots have
+		   been found the LED brightness will be at 100%. It wants
+		   control as long as it hasn't found the three spots. This
+		   behavior runs with the lowest priority.
+
+	Once the robots have found all spots both of them will stop.
+
+Usage:
+
+	The 'main.py' file creates the robot. Usage is defined by the following:
+
+		usage: main.py [-h] [-s] address
+
+		ev3dev program to search for red, yellow, and blue spots
+
+		positional arguments:
+			address       MAC address of the server robot
+
+		optional arguments:
+			-h, --help    show this help message and exit
+			-s, --server  Set the current robot as the server
+
+	Example usage to show a working assignment would be:
+
+	Terminal 1:
+
+	$ ./main.py -s "00:17:E9:B4:CE:E6"
+
+	Terminal 2:
+
+	$ ./main.py "00:17:E9:B4:CE:E6"
+
+	The server must be running before the client robot can connect.
