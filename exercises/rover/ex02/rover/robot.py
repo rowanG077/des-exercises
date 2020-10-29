@@ -160,10 +160,11 @@ class BluetoothConnection:
         Send data to the connected device.
         """
 
-        if b'\0' in data:
+        encoded = data.encode()
+        if b'\0' in encoded:
             raise ValueError("Data to send may not contain null characters.")
 
-        self.sock.sendall(data.encode() + b'\0')
+        self.sock.sendall(encoded + b'\0')
         self.sock.flush()
 
     def __listen(self, callback):
@@ -173,7 +174,10 @@ class BluetoothConnection:
             if not data:
                 break
 
-            buf += data
+            # XXX: encode() is required since the simulator's BluetoothSocket
+            # returns a decoded string rather than the byte object required by
+            # the standard.
+            buf += data.encode()
 
             while b'\0' in buf:
                 s = buf.split(b'\0', 1)
