@@ -53,11 +53,15 @@ Description:
 	priority until there are no more behaviors that want control.
 
 	Our implementation uses the same terminology as mentioned in the lecture
-	slides. We make use of python's generator functionality in order to stop
-	running actions. This means that behaviors use the 'yield' functionality
-	in order to yield control. This is similar to how a different solution
-	could use a 'suppress' flag and a conditional statement in order to exit
-	early.
+	slides. We make use of Python's generator functionality in order to stop
+	running actions. Traditionally generators are used to be be able to compute
+	values of a sequence on-demand. Instead of doing this we use generators to
+	have a sequence of side-effectful computation without a result. Concretely
+	this means that behaviors use the 'yield' functionality in order to yield
+	control. This is similar to how a different solution could use a 'suppress'
+	flag and a conditional statement in order to exit early. However the big
+	advantage of using generators is that we get the state tracking for free
+	as the function is essentially paused with all state intact.
 
 	For the network architecture a simple server-client system is used. Both
 	robots run the same program where one of them acts as the server. This
@@ -67,7 +71,9 @@ Description:
 	robot starts a separate thread for listening to incoming messages.
 	Behaviors can subscribe to specific messages. Once a message has been
 	received the robot searches through the list of behaviors that have
-	subscribed to the message type and delegates the message to them.
+	subscribed to the message type and delegates the message to them. We
+	have chosen json for our message format and use null characters to
+	delimit messages.
 
 	We use four behaviors.
 

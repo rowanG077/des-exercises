@@ -160,16 +160,25 @@ class BluetoothConnection:
         Send data to the connected device.
         """
 
-        self.sock.sendall(data.encode())
+        if b'\0' in data:
+            raise ValueError("Data to send may not contain null characters.")
+
+        self.sock.sendall(data.encode() + b'\0')
         self.sock.flush()
 
     def __listen(self, callback):
+        buf = b''
         while True:
             data = self.sock.recv(4096)
             if not data:
                 break
 
-            callback(data)
+            buf += data
+
+            while b'\0' in buf:
+                s = buf.split(b'\0', 1)
+                callback(s[0])
+                buf = s[1]
 
     def listen(self, callback):
         """
