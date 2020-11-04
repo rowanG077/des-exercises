@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: persons.tasks
+Bundle-ManifestVersion: 2
+Bundle-Name: persons.tasks
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: persons.tasks; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.xtext.xbase,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.xtext.util,
+ org.eclipse.emf.common,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: persons.tasks.services,
+ persons.tasks.taskDSL,
+ persons.tasks.parser.antlr,
+ persons.tasks.taskDSL.impl,
+ persons.tasks.generator,
+ persons.tasks.serializer,
+ persons.tasks.validation,
+ persons.tasks,
+ persons.tasks.parser.antlr.internal,
+ persons.tasks.scoping,
+ persons.tasks.taskDSL.util
+Import-Package: org.apache.log4j
