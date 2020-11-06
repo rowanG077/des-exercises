@@ -28,7 +28,7 @@ class PythonGenerator {
 	def static dispatch generateStateSet(AliveDeadRule stateRule)'''
 		if current_value == on_value:
 			«generateBoolExpOrConstant(stateRule.aliveRule.condition, Optional.of('''off_value'''))»
-		else if current_value == off_value:
+		elif current_value == off_value:
 			«generateBoolExpOrConstant(stateRule.deadRule.condition, Optional.of('''on_value'''))»
 		return current_value
 	'''
