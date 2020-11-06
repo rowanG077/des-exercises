@@ -1,0 +1,68 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+DSL Game of Life:
+
+	Perform the activities of the DSL manual up to and including section
+	3.7 (for use of Git, see section 5.3):
+	http://www.cs.ru.nl/J.Hooman/DSL/Creating_a_Domain_Specific_Language_(DSL)_with_Xtext.pdf
+
+	Develop a DSL with validation and code generation for fast experiments
+	with evolution rules of the Game of Life (see conway.py and rulesoflife.py).
+	Only generate the file “rulesoflife.py”.
+	
+	Upload:
+
+	* All changed files of the meta-level workspace:
+		- xtext file with grammar
+		- xtend files for generator and validation
+	* A few instances of the DSL, as can be constructed in the runtime workspace
+
+Description:
+
+	We have created a simple DSL that allows us to declaratively write rules
+	for a cellular automaton which looks at how many neighbours are alive.
+	The syntax we have chosen is that you can have multiple rules in a single file
+	that all get generated to their own python file in a directory that has the
+	name of the so called ruleset. Below is an example of file with two rules.
+
+		Rules testRules
+
+		Rule constAliveBoth
+			_ := Alive
+			
+		Rule constAliveSplit
+			Alive := Alive
+			Dead := Alive
+			
+		Rule rulesoflife
+			Alive := Neighbours < 2 Or Neighbours > 3
+			Dead := Neighbours == 3
+
+	This file will generate a folder called "testRules" with the files
+	"constAliveBoth.py", "constAliveSplit.py" and "rulesoflife.py". The way
+	the DSL works is that a single rules has either a case which applies to all
+	cells which is denoted by an underscore:
+
+		Rule constAliveBoth
+			_ := Alive
+		
+	Or the rules is split into an Alive rule and a Dead rule. The Alive rule
+	is applied to all cells which are currently alive and the Dead rule to all
+	cells which are currently dead. A rule can either be a boolean expression
+	or a literal.
+	
+	A literal simply means that that cell will be constantly moved
+	to that state. So the example "constAliveBoth" will make all cells alive.
+	The more interesting case is the boolean expression. If the boolean
+	expression is true the cell will flip. So for example the "rulesoflife" rule
+	will flip an alive cell to dead if less then 2 neighbours are alive or
+	more then 3 neighbours are alive. It will also flip a dead cell to alive if
+	exactly 3 neighbours are alive.
+
+	We have fixed this structure in our production rules so it's not possible
+	to write multiple Alive or Dead rules or combine Alive and Dead rules with a
+	case that applies to all cells. The validator makes sure no duplicate Rule
+  names exist. In addition the validator makes a non-exhaustive check on the
+  comparisons that are made with the Neighbours. This can be done because the
+  number of neighbours is fixed.

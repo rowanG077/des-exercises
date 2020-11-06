@@ -1,0 +1,19 @@
+Rules rowanRules
+
+Rule constAliveBoth
+	_ := Alive
+	
+Rule constDeadBoth
+	_ := Dead
+	
+Rule constAliveSplt
+	Alive := Alive
+	Dead := Dead
+	
+Rule rulesoflife
+	Alive := Neighbours < 2 Or Neighbours > 3
+	Dead := Neighbours == 3
+	
+Rule foo
+	Alive := (Neighbours < 4 Or Neighbours > 3) And Neighbours == 1
+	Dead := Dead
