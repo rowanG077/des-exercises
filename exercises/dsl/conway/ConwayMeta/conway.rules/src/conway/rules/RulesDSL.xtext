@@ -18,8 +18,15 @@ Rule:
 ;
 
 StateSet:
-	'_'     bothRule = StateRule |
-  	'Alive' aliveRule = StateRule
+	BothRule | AliveDeadRule
+;
+
+BothRule:
+	'_'     bothRule = StateRule
+;
+
+AliveDeadRule:
+	'Alive' aliveRule = StateRule
   	'Dead'  deadRule = StateRule
 ;
 
@@ -28,7 +35,10 @@ StateRule:
 ;
 
 BooleanExpressionOrConstant:
-	expr = BooleanExpression |
+	BooleanExpression | ConstantExpression
+;
+
+ConstantExpression:
 	constant = CellState
 ;
 
@@ -45,15 +55,19 @@ BooleanExpressionLevel2 returns BooleanExpression:
 ;
 
 BooleanExpressionLevel3 returns BooleanExpression:
-	neighbour = NeighbourComparison |
-	bracket = BooleanBracket
+	NeighbourComparison | BooleanBracket
 ;
 
-NeighbourComparison:
-	NEIGHBOURS_LITERAL op = CompareOperator right = IntegerLiteral |
-	left = IntegerLiteral op = CompareOperator NEIGHBOURS_LITERAL
+NeighbourComparison: LeftNeighbourComparison | RightNeighbourComparison
 ;
 
+LeftNeighbourComparison:
+	NEIGHBOURS_LITERAL op = CompareOperator value = INT
+;
+
+RightNeighbourComparison:
+	value = INT op = CompareOperator NEIGHBOURS_LITERAL
+;
 
 terminal NEIGHBOURS_LITERAL: 
 	'Neighbours'
@@ -62,10 +76,6 @@ terminal NEIGHBOURS_LITERAL:
 
 BooleanBracket:
 	'(' sub = BooleanExpression ')'
-;
-
-IntegerLiteral:
-	value = INT
 ;
 
 enum CompareOperator:
