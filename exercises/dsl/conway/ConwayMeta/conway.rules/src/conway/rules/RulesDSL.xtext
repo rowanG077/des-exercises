@@ -14,7 +14,7 @@ Rules:
 Rule:
 	'Rule'
 	name = ID
-	states += StateSet+
+	states = StateSet
 ;
 
 StateSet:
