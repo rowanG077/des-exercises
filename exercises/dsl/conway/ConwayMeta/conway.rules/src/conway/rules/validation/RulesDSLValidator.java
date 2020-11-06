@@ -3,6 +3,14 @@
  */
 package conway.rules.validation;
 
+import org.eclipse.xtext.validation.Check;
+
+import conway.rules.rulesDSL.CompareOperator;
+import conway.rules.rulesDSL.LeftNeighbourComparison;
+import conway.rules.rulesDSL.RightNeighbourComparison;
+import conway.rules.rulesDSL.Rule;
+import conway.rules.rulesDSL.Rules;
+import conway.rules.rulesDSL.RulesDSLPackage.Literals;
 
 /**
  * This class contains custom validation rules. 
@@ -10,16 +18,95 @@ package conway.rules.validation;
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class RulesDSLValidator extends AbstractRulesDSLValidator {
+
+	private final int MIN_NEIGHBOURS = 0;
+	private final int MAX_NEIGHBOURS = 8;
 	
-//	public static final String INVALID_NAME = "invalidName";
-//
-//	@Check
-//	public void checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
-//			warning("Name should start with a capital",
-//					RulesDSLPackage.Literals.GREETING__NAME,
-//					INVALID_NAME);
-//		}
-//	}
+	private CompareOperator mapToLeft(CompareOperator op)
+	{	
+		switch (op) {
+		case EQ:
+		case NEQ:
+			return op;
+		case G:
+			return CompareOperator.L;
+		case GE:
+			return CompareOperator.LE;
+		case L:
+			return CompareOperator.G;
+		case LE:
+			return CompareOperator.GE;
+		default:
+			throw new RuntimeException("parse error");
+		}
+	}
+	
+	private void checkComparison(int value, CompareOperator op)
+	{
+		switch (op) {
+		case EQ:
+		case NEQ:
+			if (value < MIN_NEIGHBOURS || value > MAX_NEIGHBOURS) {
+				warning(String.format("Equality comparison is useless since neighbours are in the range [%d,%d]", 
+									MIN_NEIGHBOURS, 
+									MAX_NEIGHBOURS)
+						, Literals.NEIGHBOUR_COMPARISON__VALUE);
+			}
+			break;
+		case G:
+			if (value > MAX_NEIGHBOURS) {
+				warning(String.format("Expression is always true since %d is the max neighbour count", 
+									MAX_NEIGHBOURS)
+						, Literals.NEIGHBOUR_COMPARISON__VALUE);
+			}
+			break;
+		case GE:
+			if (value == MAX_NEIGHBOURS) {
+				warning(String.format("Consider rewriting to == since %d is the max neighbour count", 
+									MIN_NEIGHBOURS)
+						, Literals.NEIGHBOUR_COMPARISON__VALUE);
+			}
+			break;
+		case L:
+			if (value < MIN_NEIGHBOURS) {
+				warning(String.format("Expression is always false since %d is the min neighbour count", 
+									MIN_NEIGHBOURS)
+						, Literals.NEIGHBOUR_COMPARISON__VALUE);
+			}
+			break;
+		case LE:
+			if (value == MIN_NEIGHBOURS) {
+				warning(String.format("Consider rewriting to == since %d is the min neighbour count", 
+									MIN_NEIGHBOURS)
+						, Literals.NEIGHBOUR_COMPARISON__VALUE);
+			}
+			break;
+		}
+	}
+	
+	@Check
+	public void checkNeighbourLeftNumber(LeftNeighbourComparison comparison)
+	{
+		checkComparison(comparison.getValue(), comparison.getOp());
+	}
+	
+	@Check
+	public void checkNeighbourRightNumber(RightNeighbourComparison comparison)
+	{
+		checkComparison(comparison.getValue(), mapToLeft(comparison.getOp()));
+	}
+	
+	@Check
+	public void checkUniqueRuleName(Rules root)
+	{
+		var rules = root.getRules();
+		for (Rule r : rules) {
+			var name = r.getName();
+			var count = rules.stream().filter(x -> x.getName().equals(name)).count();
+			if (count > 1) { 
+				error(String.format("Rule name %s is not unique", name), Literals.RULES__RULES);
+			}
+		}
+	}
 	
 }
