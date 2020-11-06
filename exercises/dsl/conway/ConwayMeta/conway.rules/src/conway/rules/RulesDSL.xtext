@@ -43,18 +43,18 @@ ConstantExpression:
 ;
 
 BooleanExpression:
-	BooleanExpressionLevel1
+	BooleanExpressionLevelOr
 ;
 
-BooleanExpressionLevel1 returns BooleanExpression:
-	BooleanExpressionLevel2 ({BooleanExpressionLevel1.left=current} 'Or' right = BooleanExpressionLevel2)*
+BooleanExpressionLevelOr returns BooleanExpression:
+	BooleanExpressionLevelAnd ({BooleanExpressionLevelOr.left=current} 'Or' right = BooleanExpressionLevelAnd)*
 ;
 
-BooleanExpressionLevel2 returns BooleanExpression:
-	BooleanExpressionLevel3 ({BooleanExpressionLevel2.left=current} 'And' right = BooleanExpressionLevel3)*
+BooleanExpressionLevelAnd returns BooleanExpression:
+	BooleanExpressionFin ({BooleanExpressionLevelAnd.left=current} 'And' right = BooleanExpressionFin)*
 ;
 
-BooleanExpressionLevel3 returns BooleanExpression:
+BooleanExpressionFin returns BooleanExpression:
 	NeighbourComparison | BooleanBracket
 ;
 
