@@ -1,0 +1,74 @@
+grammar conway.rules.RulesDSL with org.eclipse.xtext.common.Terminals
+
+// next needed because of Ecore type EBoolean used
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+generate rulesDSL "http://www.rules.conway/RulesDSL"
+
+Rules: 
+	'Rules'
+	name = ID 
+	rules += Rule+
+;
+
+Rule:
+	'Rule'
+	name = ID
+	state = CellState
+	':='
+	condition = BooleanExpression
+;
+
+BooleanExpression:
+	BooleanExpressionLevel1   
+;
+
+BooleanExpressionLevel1 returns BooleanExpression:
+	BooleanExpressionLevel2 ({BooleanExpressionLevel1.left=current} 'Or' right = BooleanExpressionLevel2)*
+;
+
+BooleanExpressionLevel2 returns BooleanExpression:
+	BooleanExpressionLevel3 ({BooleanExpressionLevel2.left=current} 'And' right = BooleanExpressionLevel3)*
+;
+
+BooleanExpressionLevel3 returns BooleanExpression:
+	neighbour = NeighbourComparison |
+	bracket = BooleanBracket | 
+    constant = BooleanExpressionConstant
+;
+
+BooleanExpressionConstant:
+	value=BOOL_LITERAL
+;
+
+terminal BOOL_LITERAL returns ecore::EBoolean: 
+	'True' | 
+	'False'
+;
+
+NeighbourComparison:
+	'Neighbours' op = CompareOperator value = IntegerLiteral
+;
+
+BooleanBracket:
+	'(' sub = BooleanExpression ')'
+;
+
+IntegerLiteral:
+	value = INT
+;
+
+enum CompareOperator:
+	EQ  = '==' |
+	NEQ = '!=' |
+	LE  = '<=' |
+	GE  = '>=' |
+	L   = '<'  |
+	G   = '>'
+;
+
+enum CellState:
+	ALIVE = 'Alive' |
+	DEAD = 'Dead' |
+    BOTH = '_'
+;
