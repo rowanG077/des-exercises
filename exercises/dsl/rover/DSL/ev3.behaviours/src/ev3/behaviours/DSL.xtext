@@ -1,56 +1,155 @@
-grammar conway.rules.RulesDSL with org.eclipse.xtext.common.Terminals
+grammar ev3.behaviours.DSL with org.eclipse.xtext.common.Terminals
 
 // next needed because of Ecore type EBoolean used
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
-generate rulesDSL "http://www.rules.conway/RulesDSL"
+generate ev3DSL "http://www.ev3.behaviours/DSL"
 
-Behaviour: 
-	'Behaviour'
-	name = ID 
-	'priority' '=' priority = INT
-	'Trigger:' trigger = Expression
-	'Steps:' steps += Stmt+
+Mission:
+	'Mission'
+	name = ID
+	behaviours += Behavior+
 ;
 
-Expression:
-	ExpressionLevelOr
+Behavior:
+	'Behavior'
+	name = ID
+	('InitialState:' states += SetStatement+)?
+	'Priority:' prio = INT
+	'When:' when = BooleanExpression
+	'Do:' do = Block
 ;
 
-ExpressionLevelOr returns Expression:
-	ExpressionLevelAnd ({ExpressionLevelOr.left=current} 'Or' right = ExpressionLevelAnd)*
+Block:
+	statements += Statement+
 ;
 
-ExpressionLevelAnd returns Expression:
-	ExpressionLevelEq ({ExpressionLevelAnd.left=current} 'And' right = ExpressionLevelEq)*
+Statement:
+	Conditional    |
+	DriveStatement | 
+	TurnStatement  | 
+	SetStatement   | 
+	WaitStatement
 ;
 
-ExpressionLevelEq returns Expression:
-	ExpressionLevelCmp ({ExpressionLevelEq.left=current} op = EqualityOperator right = ExpressionLevelCmp)*
+Conditional:
+	'if' condition = BooleanExpression 'then'
+		block = Block
+	(elseifs += ElseIfConditional)*
+	('else' 
+		elseBlock = Block
+	)?
+	'end'
 ;
 
-ExpressionLevelCmp returns Expression:
-	ExpressionFin ({ExpressionLevelCmp.left=current} op = CompareOperator right = ExpressionFin)*
+ElseIfConditional:
+	'elseif' condition = BooleanExpression 'then'
+		block = Block
 ;
 
-ExpressionFin returns Expression:
-	BooleanBracket
+DriveStatement:
+	'drive' speed = INT '%' direction = DriveDirection withStatement = DriveWith?
 ;
 
+DriveWith:
+	'with' 'turn' turnSpeed = INT '%' turnDirection = TurnDirection
+;
 
+TurnStatement:
+	'turn' degrees = INT 'degrees' direction = TurnDirection
+;
+
+SetStatement:
+	variable = ID '=' value = Boolean
+;
+
+WaitStatement:
+	'wait' duration = INT 'seconds'
+;
+
+enum DriveDirection:
+    FOWARD   = 'forward' |
+    BACKWARD = 'backward'
+;
+
+enum TurnDirection:
+    LEFT  = 'left' |
+    RIGHT = 'right'
+;
+
+BooleanExpression:
+    BooleanExpressionLevelOr
+;
+
+BooleanExpressionLevelOr returns BooleanExpression:
+    BooleanExpressionLevelAnd ({BooleanExpressionLevelOr.left=current} 'Or' right = BooleanExpressionLevelAnd)*
+;
+
+BooleanExpressionLevelAnd returns BooleanExpression:
+    BooleanExpressionLevelNot ({BooleanExpressionLevelAnd.left=current} 'And' right = BooleanExpressionLevelNot)*
+;
+
+BooleanExpressionLevelNot returns BooleanExpression:
+	NotExpression |     
+	BooleanExpressionFin
+; 
+
+NotExpression:  
+	"Not" expr = BooleanExpressionFin 
+;
+
+BooleanExpressionFin returns BooleanExpression:
+    SensorReading      |
+    Variable           |
+    BooleanBracket
+;
 
 BooleanBracket:
-	'(' sub = Expression ')'
+    '(' sub = BooleanExpression ')'
 ;
 
-enum EqualityOperator:
-	EQ  = 'Is' |
-	NEQ = 'Is Not'
+SensorReading:
+	ColorSensorReading | UltrasonicSensorReading | TouchSensorReading
+;
+
+ColorSensorReading:
+	'ColorSensorReading' 'Is' color = Colors
+;
+
+UltrasonicSensorReading:
+	'UltrasonicSensorReading' op = CompareOperator distance = INT 'cm'
+;
+
+TouchSensorReading:
+	'TouchSensorReading' side = TouchSensorSide
+;
+
+enum TouchSensorSide:
+	LEFT  = 'left' |
+    RIGHT = 'right'
+;
+
+Variable:
+	variable = ID
+;
+
+enum Colors:
+    RED    = 'Red'    |
+    BLUE   = 'Blue'   |
+    YELLOW = 'Yellow' |
+    BLACK  = 'Black'
 ;
 
 enum CompareOperator:
-	LE  = '<=' |
-	GE  = '>=' |
-	L   = '<'  |
-	G   = '>'
+    EQ  = '==' |
+    NEQ = '!=' |
+    LE  = '<=' |
+    GE  = '>=' |
+    L   = '<'  |
+    G   = '>'
+;
+
+enum Boolean:
+	TRUE  = 'True'  |
+	FALSE = 'False'
 ;

@@ -8,5 +8,22 @@ Bundle-SymbolicName: ev3.behaviours; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.xbase,
- org.eclipse.equinox.common;bundle-version="3.5.0"
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.xtext.util,
+ org.eclipse.emf.common,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: ev3.behaviours.parser.antlr.internal,
+ ev3.behaviours.serializer,
+ ev3.behaviours.ev3DSL,
+ ev3.behaviours.ev3DSL.impl,
+ ev3.behaviours.ev3DSL.util,
+ ev3.behaviours.generator,
+ ev3.behaviours.parser.antlr,
+ ev3.behaviours.services,
+ ev3.behaviours.validation,
+ ev3.behaviours.scoping,
+ ev3.behaviours
+Import-Package: org.apache.log4j
