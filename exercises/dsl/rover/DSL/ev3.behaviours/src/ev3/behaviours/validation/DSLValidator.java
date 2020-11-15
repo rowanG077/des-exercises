@@ -3,6 +3,15 @@
  */
 package ev3.behaviours.validation;
 
+import org.eclipse.xtext.validation.Check;
+
+import ev3.behaviours.ev3DSL.Mission;
+import ev3.behaviours.ev3DSL.TurnStatement;
+import ev3.behaviours.ev3DSL.WaitStatement;
+import ev3.behaviours.ev3DSL.Ev3DSLPackage.Literals;
+import ev3.behaviours.ev3DSL.Behavior;
+import ev3.behaviours.ev3DSL.DriveStatement;
+import ev3.behaviours.ev3DSL.DriveWith;
 
 /**
  * This class contains custom validation rules. 
@@ -10,16 +19,84 @@ package ev3.behaviours.validation;
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class DSLValidator extends AbstractDSLValidator {
+
+	@Check
+	public void checkUniqueBehavior(Behavior behavior) 
+	{
+		var mission = (Mission)behavior.eContainer();
+		if (mission != null) {
+			for (var b : mission.getBehaviours()) {
+				if (b == behavior) {
+					continue;
+				}
+				
+				var bname = b.getName();
+				var oname = behavior.getName();
+				
+				if (bname.equals(oname)) {
+					error(String.format("Behavior name must be unique but %s appears more than once",
+							bname), 
+							Literals.BEHAVIOR__NAME);
+				} else if (b.getPrio() == behavior.getPrio()) {
+					error(String.format("Behavior priority must be unique, but %s and %s have the same priority",
+							bname, oname), 
+							Literals.BEHAVIOR__PRIO);
+				}
+			}
+		}
+	}
 	
-//	public static final String INVALID_NAME = "invalidName";
-//
-//	@Check
-//	public void checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
-//			warning("Name should start with a capital",
-//					DSLPackage.Literals.GREETING__NAME,
-//					INVALID_NAME);
-//		}
-//	}
+	@Check
+	public void checkTurnDegrees(TurnStatement turn)
+	{
+		var degrees = turn.getDegrees();
+		var degreesMod = degrees % 360;
+		if (degrees > 359) {
+			warning(String.format("Consider rewriting %d to %d",
+					degrees, degreesMod), 
+					Literals.TURN_STATEMENT__DEGREES);
+		}
+		
+		if (degreesMod == 0) {
+			warning(String.format("A turn of %d would not result in any rotation",
+					degreesMod), 
+					Literals.TURN_STATEMENT__DEGREES);
+		}
+	}
 	
+	@Check
+	public void checkDriveSpeed(DriveStatement drive)
+	{
+		var speed = drive.getSpeed();
+		if (speed > 100) {
+			error("Robot drive percentage can not be more than 100", 
+					Literals.DRIVE_STATEMENT__SPEED);
+		} else if (speed == 0) {
+			warning("Robot drive with 0% does not do anything", 
+					Literals.DRIVE_STATEMENT__SPEED);
+		}
+	}
+	
+	@Check
+	public void checkDriveTurnSpeed(DriveWith dw)
+	{
+		var speed = dw.getTurnSpeed();
+		if (speed > 100) {
+			error("Robot drive turn percentage can not be more than 100", 
+					Literals.DRIVE_WITH__TURN_SPEED);
+		} else if (speed == 0) {
+			warning("Robot drive turn with 0% does not do anything", 
+					Literals.DRIVE_WITH__TURN_SPEED);
+		}
+	}
+	
+	@Check
+	public void checkWaitTime(WaitStatement wait)
+	{
+		var time = wait.getDuration();
+		if (time == 0) {
+			warning("Waiting for 0 seconds does not do anything", 
+					Literals.WAIT_STATEMENT__DURATION);
+		}
+	}
 }
