@@ -41,14 +41,14 @@ class PythonGenerator {
 
 			# State init
 			«FOR s : b.states»
-			«genStatement(s, "")»
+			«genStatement(s)»
 			«ENDFOR»
 
 		def take_control(self):
 			return super().take_control() or («generateBoolExp(b.when)»)
 
 		def action_gen(self):
-«genBlock(b.getDo(), "\t\t")»
+			«genBlock(b.getDo())»
 	'''
 
 	def static dispatch generateBoolExp(BooleanExpressionLevelOr exp)
@@ -75,28 +75,28 @@ class PythonGenerator {
 	def static dispatch generateBoolExp(Variable v)
 		'''self.«v.variable»'''
 
-	def static genBlock(Block b, String indent) {
+	def static genBlock(Block b) {
 		var result = "";
 		for (s : b.statements) {
-			result += genStatement(s, indent) + "\n";
+			result += genStatement(s) + "\n";
 		}
 		return result.substring(0, result.length() - 1);
 	}
 
-	def static dispatch genStatement(Conditional stmt, String indent)'''
-	«indent»if («generateBoolExp(stmt.condition)»):
-	«genBlock(stmt.block, indent + "\t")»
+	def static dispatch genStatement(Conditional stmt)'''
+	if («generateBoolExp(stmt.condition)»):
+		«genBlock(stmt.block)»
 	«FOR e : stmt.elseifs»
-	«indent»elif («generateBoolExp(e.condition)»):
-	«genBlock(e.block, indent + "\t")»
+	elif («generateBoolExp(e.condition)»):
+		«genBlock(e.block)»
 	«ENDFOR»
 	«IF stmt.elseBlock !==  null»
-	«indent»else:
-	«genBlock(stmt.elseBlock, indent + "\t")»
+	»else:
+		«genBlock(stmt.elseBlock)»
 	«ENDIF»
 	'''
 
-	def static dispatch genStatement(DriveStatement stmt, String indent) {
+	def static dispatch genStatement(DriveStatement stmt) {
 		var leftSpeed = stmt.direction == DriveDirection.FORWARD ? stmt.speed : -stmt.speed;
 		var rightSpeed = stmt.direction == DriveDirection.FORWARD ? stmt.speed : -stmt.speed;
 		if (stmt.withStatement !== null) {
@@ -109,30 +109,30 @@ class PythonGenerator {
 			}
 		}
 
-		return '''«indent»self.tank.on(SpeedPercent(«leftSpeed»), SpeedPercent(«rightSpeed»))'''
+		return '''self.tank.on(SpeedPercent(«leftSpeed»), SpeedPercent(«rightSpeed»))'''
 	}
 
-	def static dispatch genStatement(TurnStatement stmt, String indent) {
+	def static dispatch genStatement(TurnStatement stmt) {
 		var leftSpeed = stmt.direction == TurnDirection.LEFT ? 50 : -50;
 		var rightSpeed = stmt.direction == TurnDirection.LEFT? -50 : 50;
 		return '''
-		«indent»self.tank.on_for_degrees(SpeedPercent(«leftSpeed»), SpeedPercent(«rightSpeed»), degrees=«stmt.degrees», block=False)
-		«indent»while self.tank.is_running:
-		«indent»	yield
+		self.tank.on_for_degrees(SpeedPercent(«leftSpeed»), SpeedPercent(«rightSpeed»), degrees=«stmt.degrees», block=False)
+		while self.tank.is_running:
+			yield
 		'''
 	}
 
-	def static dispatch genStatement(WaitStatement stmt, String indent) {
+	def static dispatch genStatement(WaitStatement stmt) {
 		return '''
-		«indent»t1 = time.clock()
-		«indent»while (time.clock() - t1) < «stmt.duration»:
-		«indent»	yield
+		t1 = time.clock()
+		while (time.clock() - t1) < «stmt.duration»:
+			yield
 		'''
 	}
 
 
-	def static dispatch genStatement(SetStatement stmt, String indent)
-		'''«indent»self.«stmt.variable» = «genBoolean(stmt.value)»'''
+	def static dispatch genStatement(SetStatement stmt)
+		'''self.«stmt.variable» = «genBoolean(stmt.value)»'''
 
 	def static genBoolean(Boolean b) {
 		switch (b) {
