@@ -1,0 +1,50 @@
+Group:
+  Stefan Schrijvers(S4784081) and Rowan Goemans(S4375238)
+
+DSL for small EV3 rover:
+
+Develop a DSL to describe missions for the small EV3 robot with color,
+ultrasonic and touch sensors.  Intended users of the DSL are high school students.
+
+Examples of missions: find colors; follow line; avoid colors;
+detect bottle; parking; …
+
+Define grammar and generator for ev3dev Python code
+(note: not all code need to be generated – similar to game of life).
+Test it by defining a few instances in runtime workspace.
+Note: focus on the DSL; code need not be perfect, can be improved later
+
+
+Description:
+
+  We have create a simple DSL that allows users to write a list of prioritized
+  Behaviours. Each behaviour has a a trigger which we call `When` and a series
+  of steps that are performed if the trigger is met and that behaviour is the
+  one with the highest priority. Below is an example:
+
+  Mission TestMission
+
+  Behaviour StayInBounds
+    Priority: 99
+    When: ColorSensorReading Is Black
+    Do:
+      drive 50% backward
+      wait 3 seconds
+      turn 45 degrees right
+
+  Behaviour AvoidDistance
+    Priority: 98
+    When: UltrasonicSensorReading < 50 cm
+    Do:
+      drive 50% backward
+      wait 3 seconds
+      turn 45 degrees right
+
+
+	This file will generate a folder called "TestMission" with the files
+	"StayInBounds.py" and "AvoidDistance.py". These can be used in our subsumption
+  python architecture code. But we have not had the time yet to integrate this
+  properly unfortunately. There is some validation on the DSL such that
+  duplicate names and priorities are not possible. In the future we still want
+  to add a simple type synthesizer and checker to ensure users don't generate
+  malformed Behaviours.
