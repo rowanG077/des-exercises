@@ -125,7 +125,7 @@ class PythonGenerator {
 	def static dispatch genStatement(WaitStatement stmt, String indent) {
 		return '''
 		«indent»t1 = time.clock()
-		«indent»while (time.clock() - t1) < stmt.duration:
+		«indent»while (time.clock() - t1) < «stmt.duration»:
 		«indent»	yield
 		'''
 	}
