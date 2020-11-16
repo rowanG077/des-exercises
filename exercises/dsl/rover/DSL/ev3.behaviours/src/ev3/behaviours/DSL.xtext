@@ -8,11 +8,11 @@ generate ev3DSL "http://www.ev3.behaviours/DSL"
 Mission:
 	'Mission'
 	name = ID
-	behaviours += Behavior+
+	behaviours += Behaviour+
 ;
 
-Behavior:
-	'Behavior'
+Behaviour:
+	'Behaviour'
 	name = ID
 	('InitialState:' states += SetStatement+)?
 	'Priority:' prio = INT
@@ -68,7 +68,7 @@ WaitStatement:
 ;
 
 enum DriveDirection:
-    FOWARD   = 'forward' |
+    FORWARD   = 'forward' |
     BACKWARD = 'backward'
 ;
 

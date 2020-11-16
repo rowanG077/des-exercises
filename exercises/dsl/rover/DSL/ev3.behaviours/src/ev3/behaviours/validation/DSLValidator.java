@@ -9,7 +9,7 @@ import ev3.behaviours.ev3DSL.Mission;
 import ev3.behaviours.ev3DSL.TurnStatement;
 import ev3.behaviours.ev3DSL.WaitStatement;
 import ev3.behaviours.ev3DSL.Ev3DSLPackage.Literals;
-import ev3.behaviours.ev3DSL.Behavior;
+import ev3.behaviours.ev3DSL.Behaviour;
 import ev3.behaviours.ev3DSL.DriveStatement;
 import ev3.behaviours.ev3DSL.DriveWith;
 
@@ -21,7 +21,7 @@ import ev3.behaviours.ev3DSL.DriveWith;
 public class DSLValidator extends AbstractDSLValidator {
 
 	@Check
-	public void checkUniqueBehavior(Behavior behavior) 
+	public void checkUniqueBehavior(Behaviour behavior) 
 	{
 		var mission = (Mission)behavior.eContainer();
 		if (mission != null) {
@@ -36,11 +36,11 @@ public class DSLValidator extends AbstractDSLValidator {
 				if (bname.equals(oname)) {
 					error(String.format("Behavior name must be unique but %s appears more than once",
 							bname), 
-							Literals.BEHAVIOR__NAME);
+							Literals.BEHAVIOUR__NAME);
 				} else if (b.getPrio() == behavior.getPrio()) {
 					error(String.format("Behavior priority must be unique, but %s and %s have the same priority",
 							bname, oname), 
-							Literals.BEHAVIOR__PRIO);
+							Literals.BEHAVIOUR__PRIO);
 				}
 			}
 		}
