@@ -26,17 +26,19 @@ Block:
 
 Statement:
 	Conditional    |
-	DriveStatement | 
-	TurnStatement  | 
-	SetStatement   | 
-	WaitStatement
+	DriveStatement |
+	TurnStatement  |
+	SetStatement   |
+	WaitStatement  |
+	ProbeStatement |
+	StopStatement
 ;
 
 Conditional:
 	'if' condition = BooleanExpression 'then'
 		block = Block
 	(elseifs += ElseIfConditional)*
-	('else' 
+	('else'
 		elseBlock = Block
 	)?
 	'end'
@@ -48,11 +50,15 @@ ElseIfConditional:
 ;
 
 DriveStatement:
-	'drive' speed = INT '%' direction = DriveDirection withStatement = DriveWith?
+	'drive' speed = INT '%' direction = DriveDirection withStatement = DriveWith? forStatement = DriveFor?
 ;
 
 DriveWith:
 	'with' 'turn' turnSpeed = INT '%' turnDirection = TurnDirection
+;
+
+DriveFor:
+	'for' duration = INT 'seconds'
 ;
 
 TurnStatement:
@@ -65,6 +71,14 @@ SetStatement:
 
 WaitStatement:
 	'wait' duration = INT 'seconds'
+;
+
+ProbeStatement:
+	{ProbeStatement} 'probe'
+;
+
+StopStatement:
+	{StopStatement} 'stop'
 ;
 
 enum DriveDirection:
@@ -90,12 +104,12 @@ BooleanExpressionLevelAnd returns BooleanExpression:
 ;
 
 BooleanExpressionLevelNot returns BooleanExpression:
-	NotExpression |     
+	NotExpression |
 	BooleanExpressionFin
-; 
+;
 
-NotExpression:  
-	"Not" expr = BooleanExpressionFin 
+NotExpression:
+	"Not" expr = BooleanExpressionFin
 ;
 
 BooleanExpressionFin returns BooleanExpression:
@@ -113,11 +127,11 @@ SensorReading:
 ;
 
 ColorSensorReading:
-	'ColorSensorReading' 'Is' color = Colors
+	'ColorSensorReading' side = ColorSensorSide 'Is' color = Colors
 ;
 
 UltrasonicSensorReading:
-	'UltrasonicSensorReading' op = CompareOperator distance = INT 'cm'
+	'UltrasonicSensorReading' side = UltrasonicSensorSide op = CompareOperator distance = INT 'cm'
 ;
 
 TouchSensorReading:
@@ -125,8 +139,20 @@ TouchSensorReading:
 ;
 
 enum TouchSensorSide:
-	LEFT  = 'left' |
-    RIGHT = 'right'
+	LEFT  = 'left'  |
+	RIGHT = 'right' |
+	BACK  = 'back'
+;
+
+enum ColorSensorSide:
+	LEFT   = 'left'  |
+	RIGHT  = 'right' |
+	MIDDLE = 'middle'
+;
+
+enum UltrasonicSensorSide:
+	FRONT = 'front' |
+	BACK  = 'back'
 ;
 
 Variable:
@@ -137,7 +163,8 @@ enum Colors:
     RED    = 'Red'    |
     BLUE   = 'Blue'   |
     YELLOW = 'Yellow' |
-    BLACK  = 'Black'
+    BLACK  = 'Black'  |
+    WHITE  = 'White'
 ;
 
 enum CompareOperator:

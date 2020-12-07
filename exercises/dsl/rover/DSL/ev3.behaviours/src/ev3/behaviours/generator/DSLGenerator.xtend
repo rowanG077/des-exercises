@@ -11,7 +11,7 @@ import ev3.behaviours.ev3DSL.Mission
 
 /**
  * Generates code from your model files on save.
- * 
+ *
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class DSLGenerator extends AbstractGenerator {
@@ -20,9 +20,13 @@ class DSLGenerator extends AbstractGenerator {
 		val root = resource.allContents.head as Mission;
 		if (root !== null) {
 			var path = "generated/" + resource.getURI().lastSegment + "/" + root.name + "/";
+
 			for	(b : root.behaviours) {
-				fsa.generateFile(path + b.name + ".py", PythonGenerator.toPython(b));
-			}			
+				fsa.generateFile(path + b.name + ".py", PythonBehaviorGenerator.toPython(b));
+			}
+
+			fsa.generateFile(path + "master.py", PythonMasterGenerator.toPython(root));
+			PythonFrameworkGenerator.generate(fsa, path);
 		}
 	}
 }

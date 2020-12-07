@@ -21,8 +21,13 @@ import ev3.behaviours.ev3DSL.DriveDirection
 import ev3.behaviours.ev3DSL.TurnDirection
 import ev3.behaviours.ev3DSL.TurnStatement
 import ev3.behaviours.ev3DSL.WaitStatement
+import ev3.behaviours.ev3DSL.ColorSensorSide
+import ev3.behaviours.ev3DSL.UltrasonicSensorSide
+import ev3.behaviours.ev3DSL.StopStatement
+import ev3.behaviours.ev3DSL.ProbeStatement
+import org.eclipse.emf.common.util.EList
 
-class PythonGenerator {
+class PythonBehaviorGenerator {
 	def static toPython(Behaviour b)'''
 	from threading import Lock
 	import time
@@ -30,25 +35,34 @@ class PythonGenerator {
 	from ev3dev2.motor import SpeedPercent
 	from ev3dev2.led import Leds
 
-	class «b.name»(Behaviour):
-		def __init__(self, robot, tank, color_sensor, touch_left, touch_right, ultrasonic_sensor):
-			super().__init__(robot, «b.prio»)
-			self.tank = tank
-			self.color_sensor = color_sensor
-			self.touch_left = touch_left
-			self.touch_right = touch_right
-			self.ultrasonic_sensor = ultrasonic_sensor
+	from base_behaviour import BaseBehaviour
+	from robot import RemoteSensor
 
-			# State init
-			«FOR s : b.states»
-			«genStatement(s)»
-			«ENDFOR»
+	class «b.name»(BaseBehaviour):
+	    def __init__(self, robot, tank, probe, cs_left, cs_middle, cs_right, us_back):
+	        super().__init__(robot, «b.prio»)
+	        self.tank = tank
+	        self.probe = probe
+	        self.cs_left = cs_left
+	        self.cs_middle = cs_middle
+	        self.cs_right = cs_right
+	        self.us_back = us_back
 
-		def take_control(self):
-			return super().take_control() or («generateBoolExp(b.when)»)
+	        # State init
+	        «generateStateInit(b.states)»
 
-		def action_gen(self):
-			«genBlock(b.getDo())»
+	    def take_control(self):
+	        return super().take_control() or («generateBoolExp(b.when)»)
+
+	    def action_gen(self):
+	        yield
+	        «genBlock(b.getDo())»
+	'''
+
+	def static generateStateInit(EList<SetStatement> states)'''
+	«FOR s : states»
+    «genStatement(s)»
+	«ENDFOR»
 	'''
 
 	def static dispatch generateBoolExp(BooleanExpressionLevelOr exp)
@@ -64,10 +78,10 @@ class PythonGenerator {
 		'''(«generateBoolExp(exp.sub)»)'''
 
 	def static dispatch generateBoolExp(ColorSensorReading r)
-		'''self.color_sensor.color == «genColor(r.color)»'''
+		'''«genColorSensorSide(r.side)» == «genColor(r.color)»'''
 
 	def static dispatch generateBoolExp(UltrasonicSensorReading r)
-		'''self.ultrasonic_sensor.value() «generateOp(r.op)» «r.distance»'''
+		'''«genUltrasonicSensorSide(r.side)» «generateOp(r.op)» «r.distance»'''
 
 	def static dispatch generateBoolExp(TouchSensorReading r)
 		'''«genTouchSensorSide(r.side)»'''
@@ -85,14 +99,14 @@ class PythonGenerator {
 
 	def static dispatch genStatement(Conditional stmt)'''
 	if («generateBoolExp(stmt.condition)»):
-		«genBlock(stmt.block)»
+	    «genBlock(stmt.block)»
 	«FOR e : stmt.elseifs»
 	elif («generateBoolExp(e.condition)»):
-		«genBlock(e.block)»
+	    «genBlock(e.block)»
 	«ENDFOR»
 	«IF stmt.elseBlock !==  null»
-	»else:
-		«genBlock(stmt.elseBlock)»
+	else:
+	    «genBlock(stmt.elseBlock)»
 	«ENDIF»
 	'''
 
@@ -109,30 +123,39 @@ class PythonGenerator {
 			}
 		}
 
-		return '''self.tank.on(SpeedPercent(«leftSpeed»), SpeedPercent(«rightSpeed»))'''
+		return '''
+		self.tank.on(SpeedPercent(«leftSpeed»), SpeedPercent(«rightSpeed»))
+		«IF stmt.forStatement !==  null»
+		«genWait(stmt.forStatement.duration)»
+		«ENDIF»
+		'''
 	}
 
 	def static dispatch genStatement(TurnStatement stmt) {
-		var leftSpeed = stmt.direction == TurnDirection.LEFT ? 50 : -50;
-		var rightSpeed = stmt.direction == TurnDirection.LEFT? -50 : 50;
+		var leftSpeed = stmt.direction == TurnDirection.LEFT ? -50 : 50;
+		var rightSpeed = stmt.direction == TurnDirection.LEFT? 50 : -50;
+		var multiplier = leftSpeed != 0 ? 100 / Math.abs(leftSpeed) : 0;
 		return '''
-		self.tank.on_for_degrees(SpeedPercent(«leftSpeed»), SpeedPercent(«rightSpeed»), degrees=«stmt.degrees», block=False)
+		self.tank.on_for_degrees(SpeedPercent(«leftSpeed»), SpeedPercent(«rightSpeed»), degrees=«stmt.degrees * multiplier», block=False)
 		while self.tank.is_running:
-			yield
+		    yield
 		'''
 	}
 
 	def static dispatch genStatement(WaitStatement stmt) {
-		return '''
-		t1 = time.clock()
-		while (time.clock() - t1) < «stmt.duration»:
-			yield
-		'''
+		return genWait(stmt.duration);
 	}
-
 
 	def static dispatch genStatement(SetStatement stmt)
 		'''self.«stmt.variable» = «genBoolean(stmt.value)»'''
+
+	def static dispatch genStatement(StopStatement stmt)'''
+		self.tank.off()
+		yield
+		'''
+
+	def static dispatch genStatement(ProbeStatement stmt)
+		'''# TODO: implement probe statement'''
 
 	def static genBoolean(Boolean b) {
 		switch (b) {
@@ -143,12 +166,40 @@ class PythonGenerator {
 		}
 	}
 
+	def static genWait(int seconds)'''
+		t1 = time.time()
+		while (time.time() - t1) < «seconds»:
+		    yield
+		'''
+
 	def static genTouchSensorSide(TouchSensorSide s) {
 		switch (s) {
 		case TouchSensorSide.LEFT:
-			return "self.touch_left.is_pressed"
+			return "self.robot.get_sensordata(RemoteSensor.TS_LEFT)"
 		case TouchSensorSide.RIGHT:
-			return "self.touch_right.is_pressed"
+			return "self.robot.get_sensordata(RemoteSensor.TS_RIGHT)"
+		case TouchSensorSide.BACK:
+			return "self.robot.get_sensordata(RemoteSensor.TS_BACK)"
+		}
+	}
+
+	def static genColorSensorSide(ColorSensorSide s) {
+		switch (s) {
+		case ColorSensorSide.LEFT:
+			return "self.cs_left.color"
+		case ColorSensorSide.RIGHT:
+			return "self.cs_right.color"
+		case ColorSensorSide.MIDDLE:
+			return "self.cs_middle.color"
+		}
+	}
+
+	def static genUltrasonicSensorSide(UltrasonicSensorSide s) {
+		switch (s) {
+		case UltrasonicSensorSide.FRONT:
+			return "self.robot.get_sensordata(RemoteSensor.US_FRONT)"
+		case UltrasonicSensorSide.BACK:
+			return "self.us_back.value()"
 		}
 	}
 
@@ -162,6 +213,8 @@ class PythonGenerator {
 			return "ColorSensor.COLOR_YELLOW"
 		case Colors.BLACK:
 			return "ColorSensor.COLOR_BLACK"
+		case Colors.WHITE:
+			return "ColorSensor.COLOR_WHITE"
 		}
 	}
 
