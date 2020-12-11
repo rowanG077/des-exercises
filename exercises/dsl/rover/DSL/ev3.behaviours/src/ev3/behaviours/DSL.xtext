@@ -140,15 +140,15 @@ SensorReading:
 ;
 
 ColorSensorReading:
-	'ColorSensorReading' side = ColorSensorSide 'Is' color = Colors
+	'ColorSensor' side = ColorSensorSide 'Is' color = Colors
 ;
 
 UltrasonicSensorReading:
-	'UltrasonicSensorReading' side = UltrasonicSensorSide op = CompareOperator distance = INT 'cm'
+	'UltrasonicSensor' side = UltrasonicSensorSide op = CompareOperator distance = INT 'cm'
 ;
 
 TouchSensorReading:
-	'TouchSensorReading' side = TouchSensorSide
+	'TouchSensor' side = TouchSensorSide
 ;
 
 enum TouchSensorSide:
