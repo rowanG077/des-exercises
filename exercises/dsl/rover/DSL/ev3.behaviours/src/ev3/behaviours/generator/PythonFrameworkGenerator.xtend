@@ -150,10 +150,12 @@ class PythonFrameworkGenerator {
 	    The robot class represents a single robot.
 	    """
 
-	    def __init__(self, mac_server):
-	        self.behaviors = []
+	    def __init__(self, mac_server, tank, sound):
+	        self.missions = {}
 	        self.mac_server = mac_server
 	        self.conn = None
+	        self.tank = tank
+	        self.sound = sound
 	        self.sensordata = {
 	            RemoteSensor.TS_BACK: False,
 	            RemoteSensor.TS_LEFT: False,
@@ -191,23 +193,31 @@ class PythonFrameworkGenerator {
 	        with self.sensordata_lock:
 	            return self.sensordata[sensor]
 
-	    def add_behaviour(self, behavior):
+	    def add_mission_behaviour(self, name, behavior):
 	        """
-	        Add a behaviour to the robot.
+	        Add a behaviour for a mission to the robot.
 	        """
 
-	        self.behaviors.append(behavior)
+	        if not name in self.missions:
+	            self.missions[name] = []
+
+	        self.missions[name].append(behavior)
 
 	    def run(self):
 	        """
-	        Start running behaviors until completion.
+	        Start running missions until completion.
 	        """
 
 	        self.__connect()
 
-	        arbitrator = Arbitrator(self.behaviors)
-	        arbitrator.schedule()
+	        for k in self.missions:
+	            arbitrator = Arbitrator(self.missions[k])
+	            arbitrator.schedule()
 
+	            self.tank.stop()
+	            self.sound.speak("mission " + k + " finished")
+
+	        self.sound.speak("all missions finished")
 	        self.__disconnect()
 
 

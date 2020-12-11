@@ -8,6 +8,7 @@ import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import ev3.behaviours.ev3DSL.Mission
+import ev3.behaviours.ev3DSL.Missions
 
 /**
  * Generates code from your model files on save.
@@ -17,12 +18,15 @@ import ev3.behaviours.ev3DSL.Mission
 class DSLGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		val root = resource.allContents.head as Mission;
+		val root = resource.allContents.head as Missions;
 		if (root !== null) {
 			var path = "generated/" + resource.getURI().lastSegment + "/" + root.name + "/";
+			for (m : root.missions) {
+				var bpath = path + m.name + "/";
 
-			for	(b : root.behaviours) {
-				fsa.generateFile(path + b.name + ".py", PythonBehaviorGenerator.toPython(b));
+				for	(b : m.behaviours) {
+					fsa.generateFile(bpath + b.name + ".py", PythonBehaviorGenerator.toPython(b));
+				}
 			}
 
 			fsa.generateFile(path + "master.py", PythonMasterGenerator.toPython(root));

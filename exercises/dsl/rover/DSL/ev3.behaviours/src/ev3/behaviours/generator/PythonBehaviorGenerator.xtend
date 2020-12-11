@@ -26,6 +26,9 @@ import ev3.behaviours.ev3DSL.UltrasonicSensorSide
 import ev3.behaviours.ev3DSL.StopStatement
 import ev3.behaviours.ev3DSL.ProbeStatement
 import org.eclipse.emf.common.util.EList
+import ev3.behaviours.ev3DSL.WhileStatement
+import java.util.List
+import java.util.ArrayList
 
 class PythonBehaviorGenerator {
 	def static toPython(Behaviour b)'''
@@ -78,13 +81,13 @@ class PythonBehaviorGenerator {
 		'''(«generateBoolExp(exp.sub)»)'''
 
 	def static dispatch generateBoolExp(ColorSensorReading r)
-		'''«genColorSensorSide(r.side)» == «genColor(r.color)»'''
+		'''(«FOR s : genColorSensorSide(r.side) SEPARATOR " or "»«s» == «genColor(r.color)»«ENDFOR»)'''
 
 	def static dispatch generateBoolExp(UltrasonicSensorReading r)
 		'''«genUltrasonicSensorSide(r.side)» «generateOp(r.op)» «r.distance»'''
 
 	def static dispatch generateBoolExp(TouchSensorReading r)
-		'''«genTouchSensorSide(r.side)»'''
+		'''(«FOR s : genTouchSensorSide(r.side) SEPARATOR " or "»«s»«ENDFOR»)'''
 
 	def static dispatch generateBoolExp(Variable v)
 		'''self.«v.variable»'''
@@ -154,8 +157,20 @@ class PythonBehaviorGenerator {
 		yield
 		'''
 
-	def static dispatch genStatement(ProbeStatement stmt)
-		'''# TODO: implement probe statement'''
+	def static dispatch genStatement(ProbeStatement stmt)'''
+		self.probe.on_for_degrees(10,-90,brake=True, block=False)
+		while self.probe.is_running:
+		    yield
+		self.probe.on_for_degrees(15,90, brake=True, block=False)
+		while self.probe.is_running:
+		    yield
+		'''
+
+	def static dispatch genStatement(WhileStatement stmt)'''
+		while («generateBoolExp(stmt.condition)»):
+		    «genBlock(stmt.block)»
+		    yield
+		'''
 
 	def static genBoolean(Boolean b) {
 		switch (b) {
@@ -173,25 +188,31 @@ class PythonBehaviorGenerator {
 		'''
 
 	def static genTouchSensorSide(TouchSensorSide s) {
-		switch (s) {
-		case TouchSensorSide.LEFT:
-			return "self.robot.get_sensordata(RemoteSensor.TS_LEFT)"
-		case TouchSensorSide.RIGHT:
-			return "self.robot.get_sensordata(RemoteSensor.TS_RIGHT)"
-		case TouchSensorSide.BACK:
-			return "self.robot.get_sensordata(RemoteSensor.TS_BACK)"
+		var sensors = new ArrayList<CharSequence>();
+		if (s === TouchSensorSide.LEFT  || s === TouchSensorSide.ANY) {
+			sensors.add("self.robot.get_sensordata(RemoteSensor.TS_LEFT)")
 		}
+		if (s === TouchSensorSide.RIGHT  || s === TouchSensorSide.ANY) {
+			sensors.add("self.robot.get_sensordata(RemoteSensor.TS_RIGHT)")
+		}
+		if (s === TouchSensorSide.BACK  || s === TouchSensorSide.ANY) {
+			sensors.add("self.robot.get_sensordata(RemoteSensor.TS_BACK)")
+		}
+		return sensors
 	}
 
 	def static genColorSensorSide(ColorSensorSide s) {
-		switch (s) {
-		case ColorSensorSide.LEFT:
-			return "self.cs_left.color"
-		case ColorSensorSide.RIGHT:
-			return "self.cs_right.color"
-		case ColorSensorSide.MIDDLE:
-			return "self.cs_middle.color"
+		var sensors = new ArrayList<CharSequence>();
+		if (s === ColorSensorSide.LEFT  || s === ColorSensorSide.ANY) {
+			sensors.add("self.cs_left.color")
 		}
+		if (s === ColorSensorSide.RIGHT  || s === ColorSensorSide.ANY) {
+			sensors.add("self.cs_right.color")
+		}
+		if (s === ColorSensorSide.MIDDLE  || s === ColorSensorSide.ANY) {
+			sensors.add("self.cs_middle.color")
+		}
+		return sensors
 	}
 
 	def static genUltrasonicSensorSide(UltrasonicSensorSide s) {

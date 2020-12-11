@@ -6,6 +6,7 @@ package ev3.behaviours.validation;
 import org.eclipse.xtext.validation.Check;
 
 import ev3.behaviours.ev3DSL.Mission;
+import ev3.behaviours.ev3DSL.Missions;
 import ev3.behaviours.ev3DSL.TurnStatement;
 import ev3.behaviours.ev3DSL.WaitStatement;
 import ev3.behaviours.ev3DSL.Ev3DSLPackage.Literals;
@@ -19,6 +20,28 @@ import ev3.behaviours.ev3DSL.DriveWith;
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class DSLValidator extends AbstractDSLValidator {
+
+	@Check
+	public void checkUniqueMission(Mission mission)
+	{
+		var missions = (Missions)mission.eContainer();
+		if (missions != null) {
+			for (var m : missions.getMissions()) {
+				if (m == mission) {
+					continue;
+				}
+
+				var bname = m.getName();
+				var oname = mission.getName();
+
+				if (bname.equals(oname)) {
+					error(String.format("Mission name must be unique but %s appears more than once",
+							bname),
+							Literals.MISSION__NAME);
+				}
+			}
+		}
+	}
 
 	@Check
 	public void checkUniqueBehavior(Behaviour behavior) 

@@ -5,6 +5,12 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 generate ev3DSL "http://www.ev3.behaviours/DSL"
 
+Missions:
+	'Missions'
+	name = ID
+	missions += Mission+
+;
+
 Mission:
 	'Mission'
 	name = ID
@@ -31,7 +37,8 @@ Statement:
 	SetStatement   |
 	WaitStatement  |
 	ProbeStatement |
-	StopStatement
+	StopStatement  |
+	WhileStatement
 ;
 
 Conditional:
@@ -49,8 +56,14 @@ ElseIfConditional:
 		block = Block
 ;
 
+WhileStatement:
+	'while' condition = BooleanExpression 'do'
+		block = Block
+	'end'
+;
+
 DriveStatement:
-	'drive' speed = INT '%' direction = DriveDirection withStatement = DriveWith? forStatement = DriveFor?
+	'drive' direction = DriveDirection 'at' speed = INT '%' 'speed' withStatement = DriveWith? forStatement = DriveFor?
 ;
 
 DriveWith:
@@ -141,13 +154,15 @@ TouchSensorReading:
 enum TouchSensorSide:
 	LEFT  = 'left'  |
 	RIGHT = 'right' |
-	BACK  = 'back'
+	BACK  = 'back'  |
+	ANY   = 'any'
 ;
 
 enum ColorSensorSide:
-	LEFT   = 'left'  |
-	RIGHT  = 'right' |
-	MIDDLE = 'middle'
+	LEFT   = 'left'   |
+	RIGHT  = 'right'  |
+	MIDDLE = 'middle' |
+	ANY    = 'any'
 ;
 
 enum UltrasonicSensorSide:
